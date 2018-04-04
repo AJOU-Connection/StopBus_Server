@@ -10,8 +10,14 @@
 안개가 많이 낀 날, 버스가 오는데 번호가 잘 보이지 않지요?\
 이러한 문제들을 해결하고자 **StopBus**는 버스를 제.대.로. 세우고자 합니다.
 
-## **StopBus 기능**
-구현예정
+## **StopBus_Server 기능**
+1. GBUS API를 사용하여 버스정류장별 버스도착정보 제공
+2. FCM을 사용한 Push 기능
+
+## **StopBusLink**
+- [StopBus_User](https://github.com/Danbk93/StopBus_User)
+- [StopBus_Driver](https://github.com/ssseon/StopBus_Driver)
+- [StopBus_Panel](https://github.com/HEE-YEON/StopBus_Panel)
 
 ## **사용 기술**
 1. GitHub: 프로젝트 소스코드 버전 관리
