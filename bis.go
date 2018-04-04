@@ -44,7 +44,7 @@ type BusStationList struct {
 	DistrictCd  int      `xml:"districtCd"`
 	MobileNo    string   `xml:"mobileNo"`
 	RegionName  string   `xml:"regionName"`
-	StationID   int      `xml:"stationId"`
+	StationID   string   `xml:"stationId"`
 	StationName string   `xml:"stationName"`
 	X           float32  `xml:"x`
 	Y           float32  `xml:"y"`
@@ -53,7 +53,7 @@ type BusStationList struct {
 var config ConfigObject
 
 // BusStopNumberToID 함수는 5자리 모바일 정류장번호를 버스 ID로 바꿔주는 기능을 합니다.
-func BusStopNumberToID(number string, areaCode int) {
+func BusStopNumberToID(number string, areaCode int) string {
 	file, err := ioutil.ReadFile("./configs/config.json")
 	if err != nil {
 		fmt.Printf("File error: %v\n", err)
@@ -78,7 +78,8 @@ func BusStopNumberToID(number string, areaCode int) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(data))
+
+	fmt.Println("data: " + string(data))
 
 	var busStopData Response
 	xmlErr := xml.Unmarshal(data, &busStopData)
@@ -86,5 +87,13 @@ func BusStopNumberToID(number string, areaCode int) {
 		panic(xmlErr)
 	}
 
+	fmt.Print("parsed data: ")
 	fmt.Println(busStopData)
+
+	for i := 0; i < len(busStopData.MsgBody.BusStationList); i++ {
+		if busStopData.MsgBody.BusStationList[i].DistrictCd == areaCode {
+			return busStopData.MsgBody.BusStationList[i].StationID
+		}
+	}
+	return ""
 }

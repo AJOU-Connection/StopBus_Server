@@ -1,7 +1,11 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestBusStopNumberToID(t *testing.T) {
-	BusStopNumberToID("17228", 1)
+	ret := BusStopNumberToID("04238", 2)
+	fmt.Println(ret)
 }
