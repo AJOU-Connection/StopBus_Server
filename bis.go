@@ -1,17 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
-
-type ConfigObject struct {
-	ServiceKey string `json:"serviceKey"`
-}
 
 type Response struct {
 	XMLName      xml.Name     `xml:"response"`
@@ -50,21 +44,8 @@ type BusStationList struct {
 	Y           float32  `xml:"y"`
 }
 
-var config ConfigObject
-
 // BusStopNumberToID 함수는 5자리 모바일 정류장번호를 버스 ID로 바꿔주는 기능을 합니다.
 func BusStopNumberToID(number string, areaCode int) string {
-	file, err := ioutil.ReadFile("./configs/config.json")
-	if err != nil {
-		fmt.Printf("File error: %v\n", err)
-		os.Exit(1)
-	}
-
-	err = json.Unmarshal(file, &config)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-
 	URL := "http://openapi.gbis.go.kr/ws/rest/busstationservice?serviceKey=" + config.ServiceKey + "&keyword=" + number
 
 	response, err := http.Get(URL)
