@@ -1,22 +1,31 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
 )
 
-type ResponseJson struct {
-	result string
+// ResponseJSON is response format struct
+type ResponseJSON struct {
+	Header Header `json:"header"`
 }
 
-// Index 함수는 '/'로 접속했을 때의 서버 동작을 포함하고 있다.
+// Header is response header format struct
+type Header struct {
+	Result        bool   `json:"result"`
+	ErrorContents string `json:"errorContents"`
+}
+
+// Index is a route function that operate as index page
 func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json") // header json setting
+	w.WriteHeader(http.StatusOK)                       // create http header
 
-	rj := ResponseJson{"response"}
+	responseJSON := ResponseJSON{Header{true, ""}} // create json variable
+	// responseJSON.Header.Result = false
+	// responseJSON.Header.ErrorContents = "ERROR TEST"
 
-	fmt.Fprintln(w, rj)
+	json.NewEncoder(w).Encode(responseJSON) // send json with given struct
 }

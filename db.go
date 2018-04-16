@@ -8,12 +8,8 @@ import (
 )
 
 type Database struct {
-	DBType    string
-	User      string
-	Password  string
-	IPAddress string
-	Port      string
-	Name      string
+	DBType string
+	Config DBConfig
 }
 
 type RouteSchema struct {
@@ -28,7 +24,7 @@ type RouteSchema struct {
 
 func (db Database) Query(query string) (routes []RouteSchema) {
 	// sql.DB 객체 생성
-	mysql, err := sql.Open(db.DBType, db.User+":"+db.Password+"@tcp("+db.IPAddress+":"+db.Port+")/"+db.Name)
+	mysql, err := sql.Open(db.DBType, db.Config.User+":"+db.Config.Password+"@tcp("+db.Config.IPAddress+":"+db.Config.Port+")/"+db.Config.Name)
 	if err != nil {
 		log.Fatal(err)
 	}
