@@ -42,7 +42,7 @@ func init() {
 	}
 }
 
-// main 함수는 서버가 구동함수이다.
+// main 함수는 서버의 구동함수이다.
 func main() {
 	router := httprouter.New() // create router
 	router.GET("/", Index)     // GET Root

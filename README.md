@@ -18,8 +18,8 @@
 
 ## **StopBusLink**
 - [StopBus_User](https://github.com/Danbk93/StopBus_User)
-- [StopBus_Driver](https://github.com/ssseon/StopBus_Driver)
-- [StopBus_Panel](https://github.com/HEE-YEON/StopBus_Panel)
+- [StopBus_Driver](https://github.com/HEE-YEON/StopBus_Driver)
+- [StopBus_Panel](https://github.com/ssseon/StopBus_Panel)
 
 ## **사용 기술**
 1. GitHub: 프로젝트 소스코드 버전 관리
