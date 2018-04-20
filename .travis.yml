@@ -2,14 +2,9 @@ language: go
 os:
   - windows
   - linux
-  
+
 go:
   - tip
-
-before_script:
-  - go vet
-  - go get github.com/go-sql-driver/mysql
-  - go get github.com/julienschmidt/httprouter
 
 script:
  - go test
