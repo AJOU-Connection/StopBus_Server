@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -50,6 +51,11 @@ type BusStation struct {
 
 // BusStopNumberToID 함수는 5자리 모바일 정류장번호를 버스 ID로 바꿔주는 기능을 가진 함수이다.
 func BusStopNumberToID(number string, areaCode int) string {
+	if config.ServiceKey == "" {
+		log.Println("[ERROR] config.ServiceKey not exists.")
+		return ""
+	}
+
 	URL := "http://openapi.gbis.go.kr/ws/rest/busstationservice?serviceKey=" + config.ServiceKey + "&keyword=" + number
 
 	response, err := http.Get(URL)

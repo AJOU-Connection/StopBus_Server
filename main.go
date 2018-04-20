@@ -2,11 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -33,14 +31,14 @@ var config Configs
 func init() {
 	file, err := ioutil.ReadFile("./configs/config.json") // read config.json
 	if err != nil {                                       // error exists
-		fmt.Printf("File error: %v\n", err)
-		os.Exit(1)
+		log.Printf("[ERROR] %v\n", err)
+		return
 	}
 
 	err = json.Unmarshal(file, &config) // store loaded json at config variable
 	if err != nil {                     // error exists
-		fmt.Println("error:", err)
-		os.Exit(1)
+		log.Printf("[ERROR] %v\n", err)
+		return
 	}
 }
 

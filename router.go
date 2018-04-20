@@ -24,8 +24,6 @@ func Index(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.WriteHeader(http.StatusOK)                       // create http header
 
 	responseJSON := ResponseJSON{Header{true, ""}} // create json variable
-	// responseJSON.Header.Result = false
-	// responseJSON.Header.ErrorContents = "ERROR TEST"
 
 	json.NewEncoder(w).Encode(responseJSON) // send json with given struct
 }

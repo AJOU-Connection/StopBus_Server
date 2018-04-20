@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -29,20 +30,40 @@ type StationSchema struct {
 	direction string
 }
 
+func configCheck() (ret bool) {
+	ret = true
+
+	if (DBConfig{}) == config.DB {
+		log.Println("[ERROR] config.DB not exists.")
+		ret = false
+	}
+
+	return
+}
+
 // Query 함수는 데이터베이스로 쿼리를 보낸 결과를 반환하는 함수이다.
-func (db Database) Query(query string) (routes []RouteSchema) {
+func (db Database) Query(query string) (result []RouteSchema, queryError error) {
+	if configCheck() == false {
+		queryError = errors.New("Query() error")
+		return
+	}
+
 	// sql.DB 객체 생성
 	mysql, err := sql.Open("mysql", config.DB.User+":"+config.DB.Password+"@tcp("+config.DB.IPAddress+":"+config.DB.Port+")/"+config.DB.Table)
 
 	if err != nil { // error exists
-		log.Fatal(err)
+		log.Printf("[ERROR] %v\n", err)
+		queryError = errors.New("Query() error")
+		return
 	}
 	defer mysql.Close()
 
 	rows, err := mysql.Query(query)
 
 	if err != nil { // error exists
-		log.Fatal(err)
+		log.Printf("[ERROR] %v\n", err)
+		queryError = errors.New("Query() error")
+		return
 	}
 	defer rows.Close()
 	var rowData RouteSchema
@@ -55,9 +76,11 @@ func (db Database) Query(query string) (routes []RouteSchema) {
 			&rowData.DownFirstTime,
 			&rowData.DownLastTime)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("[ERROR] %v\n", err)
+			queryError = errors.New("Query() error")
+			return
 		}
-		routes = append(routes, rowData)
+		result = append(result, rowData)
 	}
 	return
 }
