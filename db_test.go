@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
 func TestQuery(t *testing.T) {
-	db := Database{"mysql", {config.DB.User, config.DB.Password, config.DB.IPAddress, config.DB.Port, config.DB.Name}}
-	db.Query("SELECT * FROM Route")
-	//fmt.Println(db.Query("SELECT * FROM Route"))
+	db := Database{}
+	// rows = db.Query("SELECT * FROM Route")
+	fmt.Println(db.Query("SELECT * FROM Route WHERE number LIKE \"%1%\""))
+	fmt.Println(db.Query("SELECT * FROM Route WHERE number LIKE \"%1%\""))
 }

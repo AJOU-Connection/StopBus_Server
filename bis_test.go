@@ -6,6 +6,8 @@ import (
 )
 
 func TestBusStopNumberToID(t *testing.T) {
-	ret := BusStopNumberToID("04238", 2)
-	fmt.Println(ret)
+	busMobileNumber := "04238"
+	ret := BusStopNumberToID(busMobileNumber, 2)
+	fmt.Println("bus station mobile number: " + busMobileNumber)
+	fmt.Println("bus station ID: " + ret)
 }
