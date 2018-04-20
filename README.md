@@ -1,4 +1,5 @@
 # **아주대학교 2018-1학기 캡스톤디자인 Connection팀**
+[![Build Status](https://travis-ci.org/mjin1220/StopBus_Server.svg?branch=master)](https://travis-ci.org/mjin1220/StopBus_Server)
 ## **프로젝트 팀**
 - 학과: 정보통신대학 소프트웨어학과
 - 담당 교수: 윤대균
