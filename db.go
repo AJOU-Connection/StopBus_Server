@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 
+	// use mysql
 	_ "github.com/go-sql-driver/mysql"
 )
 
