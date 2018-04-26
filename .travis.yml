@@ -1,10 +1,14 @@
 language: go
-os:
-  - windows
-  - linux
 
 go:
+  - 1.8.x
   - tip
 
+before_install:
+  - go get -t -v ./...
+
 script:
-  - go test 
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -t 4e562029-c6af-4c79-b362-687fdaa05bc7
