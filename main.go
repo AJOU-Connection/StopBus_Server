@@ -11,17 +11,7 @@ import (
 
 // Configs 구초체는 서버 설정 정보에 대한 구조체이다.
 type Configs struct {
-	ServiceKey string   `json:"serviceKey"`
-	DB         DBConfig `json:"db"`
-}
-
-// DBConfig 구조체는 데이터베이스 설정 정보에 대한 구조체이다.
-type DBConfig struct {
-	User      string `json:"user"`
-	Password  string `json:"password"`
-	IPAddress string `json:"ipAddress"`
-	Port      string `json:"port"`
-	Table     string `json:"table"`
+	ServiceKey string `json:"serviceKey"`
 }
 
 // config 변수는 전역변수이다.
