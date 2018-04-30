@@ -2,27 +2,37 @@ package StopBus
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"net/url"
 )
 
-// Response 구조체는 GBUS API의 응답으로 오는 구조체이다.
-type Response struct {
+const (
+	// CommonURL is a constant that stores the common URL of the restAPI.
+	CommonURL = "http://openapi.gbis.go.kr/ws/rest"
+	// BusStationURLPath is a constant that stores the URL Path to the bus station.
+	BusStationURLPath = "busstationservice"
+	// BusRouteURLPath is a constant that stores the URL Path to the bus route.
+	BusRouteURLPath = "busrouteservice"
+)
+
+// APIResponseBody is a structure that specifies the data format to be responsed from the API.
+type APIResponseBody struct {
 	XMLName      xml.Name     `xml:"response"`
 	ComMsgHeader ComMsgHeader `xml:"comMsgHeader"`
 	MsgHeader    MsgHeader    `xml:"msgHeader"`
 	MsgBody      MsgBody      `xml:"msgBody"`
 }
 
-// ComMsgHeader 구조체는 GBUS API의 응답 내 공통 헤더이다.
+// ComMsgHeader is a structure that specifies the data format of the common header in the APIResponseBody.
 type ComMsgHeader struct {
 	XMLName    xml.Name `xml:"comMsgHeader"`
 	ErrMsg     string   `xml:"errMsg"`
 	ReturnCode int      `xml:"returnCode"`
 }
 
-// MsgHeader 구조체는 공통 헤더 내 메세지와 관련된 헤더이다.
+// MsgHeader is a structure that specifies the data format of the message header in the APIResponseBody.
 type MsgHeader struct {
 	XMLName       xml.Name `xml:"msgHeader"`
 	QueryTime     string   `xml:"queryTime"`
@@ -30,13 +40,16 @@ type MsgHeader struct {
 	ResultMessage string   `xml:"resultMessage"`
 }
 
-// MsgBody 구조체는  GBUS API의 응답 내 메시지 바디이다.
+// MsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
 type MsgBody struct {
 	XMLName        xml.Name     `xml:"msgBody"`
 	BusStationList []BusStation `xml:"busStationList"`
 }
 
-// BusStation 구조체는 버스 정류장에 대한 정보들을 가진 구조체이다.
+// BusStationList is an slice of BusStationes.
+type BusStationList []BusStation
+
+// BusStation is a structure that specifies the data format of the bus stastion in the MsgBody.
 type BusStation struct {
 	XMLName     xml.Name `xml:"busStationList"`
 	CenterYn    string   `xml:"centerYn"`
@@ -49,14 +62,9 @@ type BusStation struct {
 	Y           float32  `xml:"y"`
 }
 
-// BusStopNumberToID 함수는 5자리 모바일 정류장번호를 버스 ID로 바꿔주는 기능을 가진 함수이다.
-func BusStopNumberToID(number string, areaCode int) string {
-	if config.ServiceKey == "" {
-		log.Println("[ERROR] config.ServiceKey not exists.")
-		return ""
-	}
-
-	URL := "http://openapi.gbis.go.kr/ws/rest/busstationservice?serviceKey=" + config.ServiceKey + "&keyword=" + number
+// SearchForStation is a function that searches for bus station using keywords.
+func SearchForStation(keyword string) {
+	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
 
 	response, err := http.Get(URL)
 	if err != nil {
@@ -64,22 +72,40 @@ func BusStopNumberToID(number string, areaCode int) string {
 	}
 	defer response.Body.Close()
 
-	// Response 처리
-	data, err := ioutil.ReadAll(response.Body)
+	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		panic(err)
 	}
 
-	var busStopData Response
-	xmlErr := xml.Unmarshal(data, &busStopData)
+	var data APIResponseBody
+	xmlErr := xml.Unmarshal(responseBody, &data)
 	if xmlErr != nil {
 		panic(xmlErr)
 	}
 
-	for i := 0; i < len(busStopData.MsgBody.BusStationList); i++ {
-		if busStopData.MsgBody.BusStationList[i].DistrictCd == areaCode {
-			return busStopData.MsgBody.BusStationList[i].StationID
-		}
+	fmt.Println(data)
+}
+
+// SearchForRoute is a function that searches for bus routes using keywords.
+func SearchForRoute(keyword string) {
+	URL := CommonURL + "/" + BusRouteURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
+
+	response, err := http.Get(URL)
+	if err != nil {
+		panic(err)
 	}
-	return ""
+	defer response.Body.Close()
+
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(err)
+	}
+
+	var data APIResponseBody
+	xmlErr := xml.Unmarshal(responseBody, &data)
+	if xmlErr != nil {
+		panic(xmlErr)
+	}
+
+	fmt.Println(data)
 }

@@ -9,15 +9,15 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// Configs 구초체는 서버 설정 정보에 대한 구조체이다.
-type Configs struct {
+// configuration is a structure that specifies the contents of config.json.
+type configuration struct {
 	ServiceKey string `json:"serviceKey"`
 }
 
-// config 변수는 전역변수이다.
-var config Configs
+// config is a variable that stores configuration information.
+var config configuration
 
-// init 함수는 서버가 구동되기 전 초기화 함수이다.
+//init is an initialization function.
 func init() {
 	file, err := ioutil.ReadFile("./configs/config.json") // read config.json
 	if err != nil {                                       // error exists
@@ -32,7 +32,7 @@ func init() {
 	}
 }
 
-// main 함수는 서버의 구동함수이다.
+// main is the main function.
 func main() {
 	router := httprouter.New() // create router
 	router.GET("/", Index)     // GET Root
