@@ -2,7 +2,6 @@ package StopBus
 
 import (
 	"encoding/xml"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -17,12 +16,20 @@ const (
 	BusRouteURLPath = "busrouteservice"
 )
 
-// APIResponseBody is a structure that specifies the data format to be responsed from the API.
-type APIResponseBody struct {
+// StationResponseBody is a structure that specifies the data format to be responsed from the API.
+type StationResponseBody struct {
+	XMLName      xml.Name       `xml:"response"`
+	ComMsgHeader ComMsgHeader   `xml:"comMsgHeader"`
+	MsgHeader    MsgHeader      `xml:"msgHeader"`
+	MsgBody      StationMsgBody `xml:"msgBody"`
+}
+
+// RouteResponseBody is a structure that specifies the data format to be responsed from the API.
+type RouteResponseBody struct {
 	XMLName      xml.Name     `xml:"response"`
 	ComMsgHeader ComMsgHeader `xml:"comMsgHeader"`
 	MsgHeader    MsgHeader    `xml:"msgHeader"`
-	MsgBody      MsgBody      `xml:"msgBody"`
+	MsgBody      RouteMsgBody `xml:"msgBody"`
 }
 
 // ComMsgHeader is a structure that specifies the data format of the common header in the APIResponseBody.
@@ -40,10 +47,10 @@ type MsgHeader struct {
 	ResultMessage string   `xml:"resultMessage"`
 }
 
-// MsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
-type MsgBody struct {
-	XMLName        xml.Name     `xml:"msgBody"`
-	BusStationList []BusStation `xml:"busStationList"`
+// StationMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
+type StationMsgBody struct {
+	XMLName        xml.Name       `xml:"msgBody"`
+	BusStationList BusStationList `xml:"busStationList"`
 }
 
 // BusStationList is an slice of BusStationes.
@@ -62,34 +69,57 @@ type BusStation struct {
 	Y           float32  `xml:"y"`
 }
 
+// RouteMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
+type RouteMsgBody struct {
+	XMLName      xml.Name     `xml:"msgBody"`
+	BusRouteList BusRouteList `xml:"busRouteList"`
+}
+
+// BusRouteList is an slice of BusRoutes.
+type BusRouteList []BusRoute
+
+// BusRoute is a structure that specifies the data format of the bus route in the MsgBody.
+type BusRoute struct {
+	XMLName       xml.Name `xml:"busRouteList"`
+	DistrictCd    int      `xml:"districtCd"`
+	RegionName    string   `xml:"regionName"`
+	RouteID       string   `xml:"routeId"`
+	RouteName     string   `xml:"routeName"`
+	RouteTypeCd   string   `xml:"routeTypeCd"`
+	RouteTypeName string   `xml:"routeTypeName"`
+}
+
 // SearchForStation is a function that searches for bus station using keywords.
-func SearchForStation(keyword string) {
+func SearchForStation(keyword string) BusStationList {
 	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
 
-	response, err := http.Get(URL)
-	if err != nil {
-		panic(err)
-	}
-	defer response.Body.Close()
+	responseBody := getDataFromAPI(URL)
 
-	responseBody, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		panic(err)
-	}
-
-	var data APIResponseBody
+	var data StationResponseBody
 	xmlErr := xml.Unmarshal(responseBody, &data)
 	if xmlErr != nil {
 		panic(xmlErr)
 	}
 
-	fmt.Println(data)
+	return data.MsgBody.BusStationList
 }
 
 // SearchForRoute is a function that searches for bus routes using keywords.
-func SearchForRoute(keyword string) {
+func SearchForRoute(keyword string) BusRouteList {
 	URL := CommonURL + "/" + BusRouteURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
 
+	responseBody := getDataFromAPI(URL)
+
+	var data RouteResponseBody
+	xmlErr := xml.Unmarshal(responseBody, &data)
+	if xmlErr != nil {
+		panic(xmlErr)
+	}
+
+	return data.MsgBody.BusRouteList
+}
+
+func getDataFromAPI(URL string) []byte {
 	response, err := http.Get(URL)
 	if err != nil {
 		panic(err)
@@ -101,11 +131,5 @@ func SearchForRoute(keyword string) {
 		panic(err)
 	}
 
-	var data APIResponseBody
-	xmlErr := xml.Unmarshal(responseBody, &data)
-	if xmlErr != nil {
-		panic(xmlErr)
-	}
-
-	fmt.Println(data)
+	return responseBody
 }

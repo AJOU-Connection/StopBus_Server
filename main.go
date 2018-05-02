@@ -2,11 +2,9 @@ package StopBus
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 // configuration is a structure that specifies the contents of config.json.
@@ -19,6 +17,10 @@ var config configuration
 
 //init is an initialization function.
 func init() {
+	setUpConfig()
+}
+
+func setUpConfig() {
 	file, err := ioutil.ReadFile("./configs/config.json") // read config.json
 	if err != nil {                                       // error exists
 		log.Printf("[ERROR] %v\n", err)
@@ -34,8 +36,5 @@ func init() {
 
 // main is the main function.
 func main() {
-	router := httprouter.New() // create router
-	router.GET("/", Index)     // GET Root
-
-	log.Fatal(http.ListenAndServe(":51234", router)) // 51234
+	fmt.Println("main() start")
 }
