@@ -1,14 +1,13 @@
-package StopBus
+package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestSetUpConfig(t *testing.T) {
 	setUpConfig()
-	if config == (configuration{}) {
-		t.Logf("serviceKey is not.")
+	if (configuration{}) == config {
+		fmt.Println("HERE")
 	}
-}
-
-func TestMain(t *testing.T) {
-	main()
 }
