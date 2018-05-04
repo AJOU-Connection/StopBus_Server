@@ -1,4 +1,4 @@
-package main
+package StopBus
 
 import (
 	"log"
@@ -7,8 +7,13 @@ import (
 
 // main is the main function.
 func main() {
-	err := http.ListenAndServe(":51234", Handler())
+	err := setUpConfig()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[ERROR] %v\n", err)
+	}
+
+	err = http.ListenAndServe(":51234", Handler())
+	if err != nil {
+		log.Fatalf("[ERROR] %v\n", err)
 	}
 }
