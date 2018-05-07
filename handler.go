@@ -44,6 +44,7 @@ func Handler() http.Handler {
 
 	r.HandleFunc("/", GetOnly(IndexHandler))
 	r.HandleFunc("/driver/register", PostOnly(DriverRegisterHandler))
+	r.HandleFunc("/user/search", PostOnly(SearchHandler))
 
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	return loggedRouter
@@ -80,5 +81,35 @@ func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	header := Header{true, 0, ""}
+	data := ""
 
+	searchType := r.FormValue("type")
+	if searchType == "route" {
+		data = "route"
+	} else if searchType == "station" {
+		data = "station"
+	} else {
+		header.Result = false
+		header.ErrorCode = 1
+		header.ErrorContent = "Invalid Search Type: " + searchType
+	}
+
+	jsonBody := JSONBody{
+		header,
+		data,
+	}
+
+	var jsonValue []byte
+
+	if data == "" {
+		jsonValue, _ = json.Marshal(struct {
+			Header Header `json:"header"`
+		}{jsonBody.Header})
+	} else {
+		jsonValue, _ = json.Marshal(jsonBody)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
 }
