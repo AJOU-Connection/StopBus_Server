@@ -1,4 +1,4 @@
-package StopBus
+package main
 
 import (
 	"os"

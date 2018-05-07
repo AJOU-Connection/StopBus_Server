@@ -1,9 +1,10 @@
-package StopBus
+package main
 
 import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"os"
 )
 
@@ -17,7 +18,10 @@ var config configuration
 
 // init is an initialization function.
 func init() {
-
+	err := setUpConfig()
+	if err != nil {
+		log.Fatalf("[ERROR] %v\n", err)
+	}
 }
 
 func setUpConfig() error {
