@@ -2,7 +2,6 @@
 [![Build Status](https://travis-ci.org/AJOU-Connection/StopBus_Server.svg?branch=master)](https://travis-ci.org/AJOU-Connection/StopBus_Server)
 [![Go Report Card](https://goreportcard.com/badge/github.com/AJOU-Connection/StopBus_Server)](https://goreportcard.com/report/github.com/AJOU-Connection/StopBus_Server)
 [![codecov](https://codecov.io/gh/AJOU-Connection/StopBus_Server/branch/master/graph/badge.svg)](https://codecov.io/gh/AJOU-Connection/StopBus_Server)
-[![GoDoc](https://godoc.org/github.com/AJOU-Connection/StopBus_Server?status.svg)](https://godoc.org/github.com/AJOU-Connection/StopBus_Server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## **프로젝트 팀**
