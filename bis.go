@@ -58,15 +58,16 @@ type BusStationList []BusStation
 
 // BusStation is a structure that specifies the data format of the bus stastion in the MsgBody.
 type BusStation struct {
-	XMLName     xml.Name `xml:"busStationList"`
-	CenterYn    string   `xml:"centerYn"`
-	DistrictCd  int      `xml:"districtCd"`
-	MobileNo    string   `xml:"mobileNo"`
-	RegionName  string   `xml:"regionName"`
-	StationID   string   `xml:"stationId"`
-	StationName string   `xml:"stationName"`
-	X           float32  `xml:"x"`
-	Y           float32  `xml:"y"`
+	XMLName       xml.Name `xml:"busStationList" json:"-"`
+	CenterYn      string   `xml:"centerYn" json:"-"`
+	DistrictCd    int      `xml:"districtCd" json:"districtCd"`
+	MobileNo      string   `xml:"mobileNo" json:"stationNumber"`
+	RegionName    string   `xml:"regionName" json:"-"`
+	StationID     string   `xml:"stationId" json:"-"`
+	StationName   string   `xml:"stationName" json:"stationName"`
+	X             float32  `xml:"x" json:"-"`
+	Y             float32  `xml:"y" json:"-"`
+	StationDirect string   `xml:"-" json:"stationDirect"`
 }
 
 // RouteMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
@@ -80,13 +81,13 @@ type BusRouteList []BusRoute
 
 // BusRoute is a structure that specifies the data format of the bus route in the MsgBody.
 type BusRoute struct {
-	XMLName       xml.Name `xml:"busRouteList"`
-	DistrictCd    int      `xml:"districtCd"`
-	RegionName    string   `xml:"regionName"`
-	RouteID       string   `xml:"routeId"`
-	RouteName     string   `xml:"routeName"`
-	RouteTypeCd   string   `xml:"routeTypeCd"`
-	RouteTypeName string   `xml:"routeTypeName"`
+	XMLName       xml.Name `xml:"busRouteList" json:"-"`
+	DistrictCd    int      `xml:"districtCd" json:"districtCd"`
+	RegionName    string   `xml:"regionName" json:"-"`
+	RouteID       string   `xml:"routeId" json:"-"`
+	RouteName     string   `xml:"routeName" json:"routeNumber"`
+	RouteTypeCd   string   `xml:"routeTypeCd" json:"-"`
+	RouteTypeName string   `xml:"routeTypeName" json:"routeTypeName"`
 }
 
 type RouteStationResponseBody struct {
@@ -122,10 +123,7 @@ func SearchForStation(keyword string) BusStationList {
 	responseBody := getDataFromAPI(URL)
 
 	var data StationResponseBody
-	xmlErr := xml.Unmarshal(responseBody, &data)
-	if xmlErr != nil {
-		panic(xmlErr)
-	}
+	_ = xml.Unmarshal(responseBody, &data)
 
 	return data.MsgBody.BusStationList
 }
@@ -137,10 +135,7 @@ func SearchForRoute(keyword string) BusRouteList {
 	responseBody := getDataFromAPI(URL)
 
 	var data RouteResponseBody
-	xmlErr := xml.Unmarshal(responseBody, &data)
-	if xmlErr != nil {
-		panic(xmlErr)
-	}
+	_ = xml.Unmarshal(responseBody, &data)
 
 	return data.MsgBody.BusRouteList
 }

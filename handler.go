@@ -27,6 +27,7 @@ type BusStationInfo struct {
 	BusNumber           string                 `json:"busNumber"`
 	BusRouteStationList ResBusRouteStationList `json:"stationList"`
 }
+
 type ResBusRouteStationList []ResBusRouteStaion
 type ResBusRouteStaion struct {
 	MobileNo    string `json:"stationNumber"`
@@ -34,9 +35,13 @@ type ResBusRouteStaion struct {
 	StationSeq  int    `json:"stationSeq"`
 }
 
-type DriverInfo struct {
+type DriverInput struct {
 	PlateNo string `json:"plateNo"`
 	RouteID string `json:"routeID"`
+}
+
+type SearchInput struct {
+	Keyword string `json:"keyword"`
 }
 
 func Handler() http.Handler {
@@ -60,7 +65,7 @@ func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	body, _ := ioutil.ReadAll(r.Body)
 	fmt.Println(string(body))
 
-	var di DriverInfo
+	var di DriverInput
 	_ = json.Unmarshal(body, &di)
 
 	BISData := GetRouteStationList(di.RouteID)
@@ -81,14 +86,22 @@ func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	var si SearchInput
+	_ = json.Unmarshal(body, &si)
+
 	header := Header{true, 0, ""}
-	data := ""
+	var data interface{}
 
 	searchType := r.FormValue("type")
 	if searchType == "route" {
-		data = "route"
+		data = SearchForRoute(si.Keyword)
 	} else if searchType == "station" {
-		data = "station"
+		data = SearchForStation(si.Keyword)
 	} else {
 		header.Result = false
 		header.ErrorCode = 1
@@ -102,7 +115,7 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 
 	var jsonValue []byte
 
-	if data == "" {
+	if data == nil {
 		jsonValue, _ = json.Marshal(struct {
 			Header Header `json:"header"`
 		}{jsonBody.Header})
