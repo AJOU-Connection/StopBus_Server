@@ -69,6 +69,7 @@ func TestGetDataFromAPI(t *testing.T) {
 	}{
 		{"http://stop-bus.tk", ""},
 		{"http://stop-bus.tk/test", "Not expected http.StatusCode: 200."},
+		{"http://stop-bus", ""},
 	}
 	for _, tc := range tt {
 		responseBody, err := getDataFromAPI(tc.URL)
