@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -24,15 +23,8 @@ type Header struct {
 }
 
 type BusStationInfo struct {
-	BusNumber           string                 `json:"busNumber"`
-	BusRouteStationList ResBusRouteStationList `json:"stationList"`
-}
-
-type ResBusRouteStationList []ResBusRouteStaion
-type ResBusRouteStaion struct {
-	MobileNo    string `json:"stationNumber"`
-	StationName string `json:"stationName"`
-	StationSeq  int    `json:"stationSeq"`
+	BusNumber           string      `json:"busNumber"`
+	BusRouteStationList interface{} `json:"stationList"`
 }
 
 type DriverInput struct {
@@ -69,15 +61,12 @@ func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	_ = json.Unmarshal(body, &di)
 
 	BISData := GetRouteStationList(di.RouteID)
-	resDataList := ResBusRouteStationList{}
-	for _, data := range BISData {
-		resDataList = append(resDataList, ResBusRouteStaion{strings.TrimSpace(data.MobileNo), data.StationName, data.StationSeq})
-	}
+
 	busNumber := GetRouteNameFromRouteID(di.RouteID)
 
 	jsonBody := JSONBody{
 		Header{true, 0, ""},
-		BusStationInfo{busNumber, resDataList},
+		BusStationInfo{busNumber, BISData},
 	}
 	jsonValue, _ := json.Marshal(jsonBody)
 

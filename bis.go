@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -103,24 +104,24 @@ type RouteStationMsgBody struct {
 }
 type BusRouteStationList []BusRouteStation
 type BusRouteStation struct {
-	XMLName     xml.Name `xml:"busRouteStationList"`
-	CenterYn    string   `xml:"centerYn"`
-	DistrictCd  int      `xml:"districtCd"`
-	MobileNo    string   `xml:"mobileNo"`
-	RegionName  string   `xml:"regionName"`
-	StationID   string   `xml:"stationId"`
-	StationName string   `xml:"stationName"`
-	X           float32  `xml:"x"`
-	Y           float32  `xml:"y"`
-	StationSeq  int      `xml:"stationSeq"`
-	TurnYn      string   `xml:"turnYn"`
+	XMLName     xml.Name `xml:"busRouteStationList" json:"-"`
+	CenterYn    string   `xml:"centerYn" json:"-"`
+	DistrictCd  int      `xml:"districtCd" json:"-"`
+	MobileNo    string   `xml:"mobileNo" json:"stationNumber"`
+	RegionName  string   `xml:"regionName" json:"-"`
+	StationID   string   `xml:"stationId" json:"-"`
+	StationName string   `xml:"stationName" json:"stationName"`
+	X           float32  `xml:"x" json:"-"`
+	Y           float32  `xml:"y" json:"-"`
+	StationSeq  int      `xml:"stationSeq" json:"stationSeq"`
+	TurnYn      string   `xml:"turnYn" json:"-"`
 }
 
 // SearchForStation is a function that searches for bus station using keywords.
 func SearchForStation(keyword string) BusStationList {
 	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
 
-	responseBody := getDataFromAPI(URL)
+	responseBody, _ := getDataFromAPI(URL)
 
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
@@ -132,7 +133,7 @@ func SearchForStation(keyword string) BusStationList {
 func SearchForRoute(keyword string) BusRouteList {
 	URL := CommonURL + "/" + BusRouteURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
 
-	responseBody := getDataFromAPI(URL)
+	responseBody, _ := getDataFromAPI(URL)
 
 	var data RouteResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
@@ -143,13 +144,10 @@ func SearchForRoute(keyword string) BusRouteList {
 func GetRouteStationList(routeID string) BusRouteStationList {
 	URL := CommonURL + "/" + BusRouteURLPath + "/station?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
 
-	responseBody := getDataFromAPI(URL)
+	responseBody, _ := getDataFromAPI(URL)
 
 	var data RouteStationResponseBody
-	xmlErr := xml.Unmarshal(responseBody, &data)
-	if xmlErr != nil {
-		panic(xmlErr)
-	}
+	_ = xml.Unmarshal(responseBody, &data)
 
 	return data.MsgBody.BusRouteStationList
 }
@@ -157,7 +155,7 @@ func GetRouteStationList(routeID string) BusRouteStationList {
 func GetRouteNameFromRouteID(routeID string) string {
 	URL := CommonURL + "/" + BusRouteURLPath + "/info?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
 
-	responseBody := getDataFromAPI(URL)
+	responseBody, _ := getDataFromAPI(URL)
 
 	var data struct {
 		XMLName      xml.Name     `xml:"response"`
@@ -171,25 +169,25 @@ func GetRouteNameFromRouteID(routeID string) string {
 			} `xml:busRouteInfoItem`
 		} `xml:msgBody`
 	}
-	xmlErr := xml.Unmarshal(responseBody, &data)
-	if xmlErr != nil {
-		panic(xmlErr)
-	}
+
+	_ = xml.Unmarshal(responseBody, &data)
 
 	return data.MsgBody.BusRouteInfoItem.RouteName
 }
 
-func getDataFromAPI(URL string) []byte {
+func getDataFromAPI(URL string) (responseBody []byte, funcErr error) {
 	response, err := http.Get(URL)
 	if err != nil {
-		panic(err)
+		funcErr = err
+		return
 	}
+	if response.StatusCode != 200 {
+		funcErr = errors.New("Not expected http.StatusCode: 200.")
+	}
+
 	defer response.Body.Close()
 
-	responseBody, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		panic(err)
-	}
+	responseBody, _ = ioutil.ReadAll(response.Body)
 
-	return responseBody
+	return
 }

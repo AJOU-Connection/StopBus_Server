@@ -61,3 +61,25 @@ func TestGetRouteNameFromRouteID(t *testing.T) {
 		fmt.Println(resultData)
 	}
 }
+
+func TestGetDataFromAPI(t *testing.T) {
+	tt := []struct {
+		URL               string
+		expectedErrorText string
+	}{
+		{"http://stop-bus.tk", ""},
+		{"http://stop-bus.tk/test", "Not expected http.StatusCode: 200."},
+	}
+	for _, tc := range tt {
+		responseBody, err := getDataFromAPI(tc.URL)
+
+		if err != nil {
+			if err.Error() != tc.expectedErrorText {
+				t.Errorf("expected %v: got %v", tc.expectedErrorText, err.Error())
+			}
+			return
+		}
+
+		fmt.Println(string(responseBody))
+	}
+}
