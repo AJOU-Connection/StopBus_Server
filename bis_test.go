@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"testing"
 )
 
@@ -69,13 +70,13 @@ func TestGetDataFromAPI(t *testing.T) {
 	}{
 		{"http://stop-bus.tk", ""},
 		{"http://stop-bus.tk/test", "Not expected http.StatusCode: 200."},
-		{"http://stop-bus.tt", "Get http://stop-bus.tt: dial tcp: lookup stop-bus.tt: no such host"},
+		{"http://stop-bus.tt", "no such host"},
 	}
 	for _, tc := range tt {
 		responseBody, err := getDataFromAPI(tc.URL)
 
 		if err != nil {
-			if err.Error() != tc.expectedErrorText {
+			if !strings.Contains(err.Error(), tc.expectedErrorText) {
 				t.Errorf("expected %v: got %v", tc.expectedErrorText, err.Error())
 			}
 			continue
