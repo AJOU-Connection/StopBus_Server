@@ -92,3 +92,50 @@ func TestDriverRegisterHandler(t *testing.T) {
 
 	fmt.Println(string(resBody))
 }
+
+func TestSearchHandler(t *testing.T) {
+	tt := []struct {
+		reqType        string
+		keyword        string
+		httpStatusCode int
+	}{
+		{"station", "아주대학교입구", http.StatusOK},
+		{"station", "고척시장", http.StatusOK},
+		{"route", "720-2", http.StatusOK},
+		{"stat", "", http.StatusOK},
+	}
+
+	for _, tc := range tt {
+		rawBody := SearchInput{tc.keyword}
+
+		jsonBody, err := json.Marshal(rawBody)
+		if err != nil {
+			t.Fatalf("could not parsed json data: %v", err)
+		}
+		reqBody := bytes.NewBufferString(string(jsonBody))
+
+		req, err := http.NewRequest("POST", "localhost:51234/user/search?type="+tc.reqType, reqBody)
+
+		if err != nil {
+			t.Fatalf("could not created request: %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		rec := httptest.NewRecorder()
+
+		SearchHandler(rec, req)
+
+		res := rec.Result()
+		defer res.Body.Close()
+		if res.StatusCode != tc.httpStatusCode {
+			t.Fatalf("expected status OK; got %v", res.Status)
+		}
+
+		resBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Fatalf("could not read response: %v", err)
+		}
+
+		fmt.Println(string(resBody))
+	}
+}
