@@ -62,7 +62,7 @@ func TestIndexHandler(t *testing.T) {
 }
 
 func TestDriverRegisterHandler(t *testing.T) {
-	rawBody := DriverInfo{"경기00가1234", "234000026"}
+	rawBody := DriverInput{"경기00가1234", "234000026"}
 
 	jsonBody, err := json.Marshal(rawBody)
 	if err != nil {
