@@ -32,7 +32,6 @@ func TestHandler(t *testing.T) {
 	if data != "StopBus" {
 		t.Fatalf("expected StopBus; got %v", data)
 	}
-
 }
 
 func TestIndexHandler(t *testing.T) {
