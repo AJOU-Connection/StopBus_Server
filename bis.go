@@ -57,7 +57,7 @@ type StationMsgBody struct {
 // BusStationList is an slice of BusStationes.
 type BusStationList []BusStation
 
-// BusStation is a structure that specifies the data format of the bus stastion in the MsgBody.
+// BusStation is a structure that specifies the data format of the bus station in the MsgBody.
 type BusStation struct {
 	XMLName       xml.Name `xml:"busStationList" json:"-"`
 	CenterYn      string   `xml:"centerYn" json:"-"`
@@ -91,6 +91,7 @@ type BusRoute struct {
 	RouteTypeName string   `xml:"routeTypeName" json:"routeTypeName"`
 }
 
+// RouteStationResponseBody is a structure that specifies the data format to be responsed from the API.
 type RouteStationResponseBody struct {
 	XMLName      xml.Name            `xml:"response"`
 	ComMsgHeader ComMsgHeader        `xml:"comMsgHeader"`
@@ -98,11 +99,16 @@ type RouteStationResponseBody struct {
 	MsgBody      RouteStationMsgBody `xml:"msgBody"`
 }
 
+// RouteStationMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
 type RouteStationMsgBody struct {
 	XMLName             xml.Name            `xml:"msgBody"`
 	BusRouteStationList BusRouteStationList `xml:"busRouteStationList"`
 }
+
+// BusRouteStationList is an slice of BusRouteStationes.
 type BusRouteStationList []BusRouteStation
+
+// BusRouteStation is a structure that specifies the data format of the bus route station in the MsgBody.
 type BusRouteStation struct {
 	XMLName     xml.Name `xml:"busRouteStationList" json:"-"`
 	CenterYn    string   `xml:"centerYn" json:"-"`
@@ -141,6 +147,7 @@ func SearchForRoute(keyword string) BusRouteList {
 	return data.MsgBody.BusRouteList
 }
 
+// GetRouteStationList is a function that takes a list of bus line stops.
 func GetRouteStationList(routeID string) BusRouteStationList {
 	URL := CommonURL + "/" + BusRouteURLPath + "/station?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
 
@@ -152,6 +159,7 @@ func GetRouteStationList(routeID string) BusRouteStationList {
 	return data.MsgBody.BusRouteStationList
 }
 
+// GetRouteNameFromRouteID is a function that get route name from routeID.
 func GetRouteNameFromRouteID(routeID string) string {
 	URL := CommonURL + "/" + BusRouteURLPath + "/info?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
 
@@ -166,8 +174,8 @@ func GetRouteNameFromRouteID(routeID string) string {
 			BusRouteInfoItem struct {
 				XMLName   xml.Name `xml:"busRouteInfoItem"`
 				RouteName string   `xml:"routeName"`
-			} `xml:busRouteInfoItem`
-		} `xml:msgBody`
+			}
+		}
 	}
 
 	_ = xml.Unmarshal(responseBody, &data)
@@ -175,6 +183,7 @@ func GetRouteNameFromRouteID(routeID string) string {
 	return data.MsgBody.BusRouteInfoItem.RouteName
 }
 
+// getDataFromAPI is a function that get data from GBUS API.
 func getDataFromAPI(URL string) (responseBody []byte, funcErr error) {
 	response, err := http.Get(URL)
 	if err != nil {
@@ -182,7 +191,7 @@ func getDataFromAPI(URL string) (responseBody []byte, funcErr error) {
 		return
 	}
 	if response.StatusCode != 200 {
-		funcErr = errors.New("Not expected http.StatusCode: 200.")
+		funcErr = errors.New("Not expected http.StatusCode: 200")
 	}
 
 	defer response.Body.Close()

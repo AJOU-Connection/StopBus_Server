@@ -69,7 +69,7 @@ func TestGetDataFromAPI(t *testing.T) {
 		expectedErrorText string
 	}{
 		{"http://stop-bus.tk", ""},
-		{"http://stop-bus.tk/test", "Not expected http.StatusCode: 200."},
+		{"http://stop-bus.tk/test", "Not expected http.StatusCode: 200"},
 		{"http://stop-bus.tt", "no such host"},
 	}
 	for _, tc := range tt {
