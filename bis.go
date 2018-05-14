@@ -17,22 +17,6 @@ const (
 	BusRouteURLPath = "busrouteservice"
 )
 
-// StationResponseBody is a structure that specifies the data format to be responsed from the API.
-type StationResponseBody struct {
-	XMLName      xml.Name       `xml:"response"`
-	ComMsgHeader ComMsgHeader   `xml:"comMsgHeader"`
-	MsgHeader    MsgHeader      `xml:"msgHeader"`
-	MsgBody      StationMsgBody `xml:"msgBody"`
-}
-
-// RouteResponseBody is a structure that specifies the data format to be responsed from the API.
-type RouteResponseBody struct {
-	XMLName      xml.Name     `xml:"response"`
-	ComMsgHeader ComMsgHeader `xml:"comMsgHeader"`
-	MsgHeader    MsgHeader    `xml:"msgHeader"`
-	MsgBody      RouteMsgBody `xml:"msgBody"`
-}
-
 // ComMsgHeader is a structure that specifies the data format of the common header in the APIResponseBody.
 type ComMsgHeader struct {
 	XMLName    xml.Name `xml:"comMsgHeader"`
@@ -46,6 +30,14 @@ type MsgHeader struct {
 	QueryTime     string   `xml:"queryTime"`
 	ResultCode    int      `xml:"resultCode"`
 	ResultMessage string   `xml:"resultMessage"`
+}
+
+// StationResponseBody is a structure that specifies the data format to be responsed from the API.
+type StationResponseBody struct {
+	XMLName      xml.Name       `xml:"response"`
+	ComMsgHeader ComMsgHeader   `xml:"comMsgHeader"`
+	MsgHeader    MsgHeader      `xml:"msgHeader"`
+	MsgBody      StationMsgBody `xml:"msgBody"`
 }
 
 // StationMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
@@ -64,11 +56,19 @@ type BusStation struct {
 	DistrictCd    int      `xml:"districtCd" json:"districtCd"`
 	MobileNo      string   `xml:"mobileNo" json:"stationNumber"`
 	RegionName    string   `xml:"regionName" json:"-"`
-	StationID     string   `xml:"stationId" json:"-"`
+	StationID     string   `xml:"stationId" json:"stationID"`
 	StationName   string   `xml:"stationName" json:"stationName"`
 	X             float32  `xml:"x" json:"-"`
 	Y             float32  `xml:"y" json:"-"`
 	StationDirect string   `xml:"-" json:"stationDirect"`
+}
+
+// RouteResponseBody is a structure that specifies the data format to be responsed from the API.
+type RouteResponseBody struct {
+	XMLName      xml.Name     `xml:"response"`
+	ComMsgHeader ComMsgHeader `xml:"comMsgHeader"`
+	MsgHeader    MsgHeader    `xml:"msgHeader"`
+	MsgBody      RouteMsgBody `xml:"msgBody"`
 }
 
 // RouteMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
@@ -84,8 +84,8 @@ type BusRouteList []BusRoute
 type BusRoute struct {
 	XMLName       xml.Name `xml:"busRouteList" json:"-"`
 	DistrictCd    int      `xml:"districtCd" json:"districtCd"`
-	RegionName    string   `xml:"regionName" json:"-"`
-	RouteID       string   `xml:"routeId" json:"-"`
+	RegionName    string   `xml:"regionName" json:"regionName"`
+	RouteID       string   `xml:"routeId" json:"routeID"`
 	RouteName     string   `xml:"routeName" json:"routeNumber"`
 	RouteTypeCd   string   `xml:"routeTypeCd" json:"-"`
 	RouteTypeName string   `xml:"routeTypeName" json:"routeTypeName"`
@@ -182,6 +182,8 @@ func GetRouteNameFromRouteID(routeID string) string {
 
 	return data.MsgBody.BusRouteInfoItem.RouteName
 }
+
+//func GetRouteInfo()
 
 // getDataFromAPI is a function that get data from GBUS API.
 func getDataFromAPI(URL string) (responseBody []byte, funcErr error) {
