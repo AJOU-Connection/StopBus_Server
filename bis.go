@@ -183,7 +183,7 @@ type BusLocation struct {
 	LowPlate      int      `xml:"lowPlate" json:"lowPlate"`
 	PlateNo       string   `xml:"plateNo" json:"plateNo"`
 	RemainSeatCnt int      `xml:"remainSeatCnt" json:"remainSeatCnt"`
-	StationID     string   `xml:"stationId" json:"stationId"`
+	StationID     string   `xml:"stationId" json:"stationID"`
 	StationSeq    int      `xml:"stationSeq" json:"stationSeq"`
 }
 
