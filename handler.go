@@ -55,6 +55,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
 	r.HandleFunc("/user/busLocationList", PostOnly(BusLocationListHandler))
+	r.HandleFunc("/user/busStationList", PostOnly(BusStationListHandler))
 
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	return loggedRouter
@@ -158,7 +159,33 @@ func RouteInfoHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(jsonValue))
 }
 
-// BusLocationListHandler is a function that handles routing for bus location
+// BusStationListHandler is a function that handles routing for bus station list
+func BusStationListHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	var orii OnlyRouteIDInput
+	_ = json.Unmarshal(body, &orii)
+
+	header := Header{true, 0, ""}
+	var data interface{}
+
+	data = GetRouteStationList(orii.RouteID)
+
+	jsonBody := JSONBody{
+		header,
+		data,
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+// BusLocationListHandler is a function that handles routing for bus location list
 func BusLocationListHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
