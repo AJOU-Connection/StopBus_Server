@@ -77,6 +77,20 @@ func TestGetRouteInfo(t *testing.T) {
 	}
 }
 
+func TestGetCurrentBusLocation(t *testing.T) {
+	tt := []struct {
+		routeID    string
+		httpStatus int
+		resultCode int
+	}{
+		{"234000026", http.StatusOK, 0},
+	}
+	for _, tc := range tt {
+		resultData := GetCurrentBusLocation(tc.routeID)
+		fmt.Println(resultData)
+	}
+}
+
 func TestGetDataFromAPI(t *testing.T) {
 	tt := []struct {
 		URL               string

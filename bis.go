@@ -15,6 +15,8 @@ const (
 	BusStationURLPath = "busstationservice"
 	// BusRouteURLPath is a constant that stores the URL Path to the bus route.
 	BusRouteURLPath = "busrouteservice"
+	// BusLocationURLPath is a constant that stores the URL Path to the bus location.
+	BusLocationURLPath = "buslocationservice"
 )
 
 // ComMsgHeader is a structure that specifies the data format of the common header in the APIResponseBody.
@@ -157,6 +159,34 @@ type BusRouteInfoItem struct {
 	UpLastTime       string   `xml:"upLastTime" json:"upLastTime"`
 }
 
+// LocationResponseBody is a structure that specifies the data format to be responsed from the API.
+type LocationResponseBody struct {
+	XMLName      xml.Name        `xml:"response"`
+	ComMsgHeader ComMsgHeader    `xml:"comMsgHeader"`
+	MsgHeader    MsgHeader       `xml:"msgHeader"`
+	MsgBody      LocationMsgBody `xml:"msgBody"`
+}
+
+// LocationMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
+type LocationMsgBody struct {
+	XMLName         xml.Name        `xml:"msgBody"`
+	BusLocationList BusLocationList `xml:"busLocationList"`
+}
+
+// BusLocationList is an slice of BusLocationes.
+type BusLocationList []BusLocation
+
+// BusLocation is a structure that specifies the data format of the bus location in the MsgBody.
+type BusLocation struct {
+	XMLName       xml.Name `xml:"busLocationList" json:"-"`
+	EndBus        int      `xml:"endBus" json:"endBus"`
+	LowPlate      int      `xml:"lowPlate" json:"lowPlate"`
+	PlateNo       string   `xml:"plateNo" json:"plateNo"`
+	RemainSeatCnt int      `xml:"remainSeatCnt" json:"remainSeatCnt"`
+	StationID     string   `xml:"stationId" json:"stationId"`
+	StationSeq    int      `xml:"stationSeq" json:"stationSeq"`
+}
+
 // SearchForStation is a function that searches for bus station using keywords.
 func SearchForStation(keyword string) BusStationList {
 	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
@@ -196,7 +226,6 @@ func GetRouteStationList(routeID string) BusRouteStationList {
 // GetRouteNameFromRouteID is a function that get route name from routeID.
 func GetRouteNameFromRouteID(routeID string) string {
 	data := GetRouteInfo(routeID)
-
 	return data.RouteName
 }
 
@@ -207,10 +236,21 @@ func GetRouteInfo(routeID string) BusRouteInfoItem {
 	responseBody, _ := getDataFromAPI(URL)
 
 	var data RouteInfoResponseBody
-
 	_ = xml.Unmarshal(responseBody, &data)
 
 	return data.MsgBody.BusRouteInfoItem
+}
+
+// GetCurrentBusLocation is a function that takes the location of the current bus.
+func GetCurrentBusLocation(routeID string) BusLocationList {
+	URL := CommonURL + "/" + BusLocationURLPath + "?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
+
+	responseBody, _ := getDataFromAPI(URL)
+
+	var data LocationResponseBody
+	_ = xml.Unmarshal(responseBody, &data)
+
+	return data.MsgBody.BusLocationList
 }
 
 // getDataFromAPI is a function that get data from GBUS API.
