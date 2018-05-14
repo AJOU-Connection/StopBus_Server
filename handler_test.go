@@ -139,3 +139,50 @@ func TestSearchHandler(t *testing.T) {
 		fmt.Println(string(resBody))
 	}
 }
+
+func TestRouteInfoHandler(t *testing.T) {
+	tt := []struct {
+		routeID        string
+		httpStatusCode int
+	}{
+		{"234000026", http.StatusOK},
+		{"232000092", http.StatusOK},
+		{"210000039", http.StatusOK},
+		{"234000021", http.StatusOK},
+		{"222000002", http.StatusOK},
+	}
+
+	for _, tc := range tt {
+		rawBody := OnlyRouteIDInput{tc.routeID}
+
+		jsonBody, err := json.Marshal(rawBody)
+		if err != nil {
+			t.Fatalf("could not parsed json data: %v", err)
+		}
+		reqBody := bytes.NewBufferString(string(jsonBody))
+
+		req, err := http.NewRequest("POST", "localhost:51234/user/routeInfo", reqBody)
+
+		if err != nil {
+			t.Fatalf("could not created request: %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		rec := httptest.NewRecorder()
+
+		RouteInfoHandler(rec, req)
+
+		res := rec.Result()
+		defer res.Body.Close()
+		if res.StatusCode != tc.httpStatusCode {
+			t.Fatalf("expected status OK; got %v", res.Status)
+		}
+
+		resBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Fatalf("could not read response: %v", err)
+		}
+
+		fmt.Println(string(resBody))
+	}
+}

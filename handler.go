@@ -41,6 +41,11 @@ type SearchInput struct {
 	Keyword string `json:"keyword"`
 }
 
+// OnlyRouteIDInput is a structure that specifies the format of the POST Request Body with only the RouteID.
+type OnlyRouteIDInput struct {
+	RouteID string `json:"routeID"`
+}
+
 // Handler is a function that handles the entire routing in the server.
 func Handler() http.Handler {
 	r := mux.NewRouter()
@@ -48,6 +53,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/", GetOnly(IndexHandler))
 	r.HandleFunc("/driver/register", PostOnly(DriverRegisterHandler))
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
+	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
 
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	return loggedRouter
@@ -120,6 +126,32 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		jsonValue, _ = json.Marshal(jsonBody)
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+// RouteInfoHandler is a function that handles routing for bus route information
+func RouteInfoHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	var orii OnlyRouteIDInput
+	_ = json.Unmarshal(body, &orii)
+
+	header := Header{true, 0, ""}
+	var data interface{}
+
+	data = GetRouteInfo(orii.RouteID)
+
+	jsonBody := JSONBody{
+		header,
+		data,
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintln(w, string(jsonValue))

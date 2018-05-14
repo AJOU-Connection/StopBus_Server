@@ -144,14 +144,14 @@ type BusRouteInfoItem struct {
 	DownFirstTime    string   `xml:"downFirstTime" json:"downFirstTime"`
 	DownLastTime     string   `xml:"downLastTime" json:"downLastTime"`
 	EndMobileNo      string   `xml:"endMobileNo" json:"endStationNumber"`
-	EndStationID     string   `xml:"endStationId" json:"endStationId"`
+	EndStationID     string   `xml:"endStationId" json:"endStationID"`
 	EndStationName   string   `xml:"endStationName" json:"endStationName"`
 	RegionName       string   `xml:"regionName" json:"regionName"`
-	RouteID          string   `xml:"routeId" json:"routeId"`
+	RouteID          string   `xml:"routeId" json:"routeID"`
 	RouteName        string   `xml:"routeName" json:"routeNumber"`
 	RouteTypeName    string   `xml:"routeTypeName" json:"routeTypeName"`
 	StartMobileNo    string   `xml:"startMobileNo" json:"startStationNumber"`
-	StartStationID   string   `xml:"startStationId" json:"startStationId"`
+	StartStationID   string   `xml:"startStationId" json:"startStationID"`
 	StartStationName string   `xml:"startStationName" json:"startStationName"`
 	UpFirstTime      string   `xml:"upFirstTime" json:"upFirstTime"`
 	UpLastTime       string   `xml:"upLastTime" json:"upLastTime"`
