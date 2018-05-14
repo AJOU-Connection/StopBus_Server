@@ -123,6 +123,40 @@ type BusRouteStation struct {
 	TurnYn      string   `xml:"turnYn" json:"-"`
 }
 
+// RouteInfoResponseBody is a structure that specifies the data format to be responsed from the API.
+type RouteInfoResponseBody struct {
+	XMLName      xml.Name         `xml:"response"`
+	ComMsgHeader ComMsgHeader     `xml:"comMsgHeader"`
+	MsgHeader    MsgHeader        `xml:"msgHeader"`
+	MsgBody      RouteInfoMsgBody `xml:"msgBody"`
+}
+
+// RouteInfoMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
+type RouteInfoMsgBody struct {
+	XMLName          xml.Name         `xml:"msgBody"`
+	BusRouteInfoItem BusRouteInfoItem `xml:"busRouteInfoItem"`
+}
+
+// BusRouteInfoItem is a structure that specifies the data format of the bus route information in the MsgBody.
+type BusRouteInfoItem struct {
+	XMLName          xml.Name `xml:"busRouteInfoItem" json:"-"`
+	DistrictCd       int      `xml:"districtCd" json:"districtCd"`
+	DownFirstTime    string   `xml:"downFirstTime" json:"downFirstTime"`
+	DownLastTime     string   `xml:"downLastTime" json:"downLastTime"`
+	EndMobileNo      string   `xml:"endMobileNo" json:"endStationNumber"`
+	EndStationID     string   `xml:"endStationId" json:"endStationId"`
+	EndStationName   string   `xml:"endStationName" json:"endStationName"`
+	RegionName       string   `xml:"regionName" json:"regionName"`
+	RouteID          string   `xml:"routeId" json:"routeId"`
+	RouteName        string   `xml:"routeName" json:"routeNumber"`
+	RouteTypeName    string   `xml:"routeTypeName" json:"routeTypeName"`
+	StartMobileNo    string   `xml:"startMobileNo" json:"startStationNumber"`
+	StartStationID   string   `xml:"startStationId" json:"startStationId"`
+	StartStationName string   `xml:"startStationName" json:"startStationName"`
+	UpFirstTime      string   `xml:"upFirstTime" json:"upFirstTime"`
+	UpLastTime       string   `xml:"upLastTime" json:"upLastTime"`
+}
+
 // SearchForStation is a function that searches for bus station using keywords.
 func SearchForStation(keyword string) BusStationList {
 	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
@@ -161,29 +195,23 @@ func GetRouteStationList(routeID string) BusRouteStationList {
 
 // GetRouteNameFromRouteID is a function that get route name from routeID.
 func GetRouteNameFromRouteID(routeID string) string {
+	data := GetRouteInfo(routeID)
+
+	return data.RouteName
+}
+
+// GetRouteInfo is a function that get route information from routeID.
+func GetRouteInfo(routeID string) BusRouteInfoItem {
 	URL := CommonURL + "/" + BusRouteURLPath + "/info?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
 
 	responseBody, _ := getDataFromAPI(URL)
 
-	var data struct {
-		XMLName      xml.Name     `xml:"response"`
-		ComMsgHeader ComMsgHeader `xml:"comMsgHeader"`
-		MsgHeader    MsgHeader    `xml:"msgHeader"`
-		MsgBody      struct {
-			XMLName          xml.Name `xml:"msgBody"`
-			BusRouteInfoItem struct {
-				XMLName   xml.Name `xml:"busRouteInfoItem"`
-				RouteName string   `xml:"routeName"`
-			}
-		}
-	}
+	var data RouteInfoResponseBody
 
 	_ = xml.Unmarshal(responseBody, &data)
 
-	return data.MsgBody.BusRouteInfoItem.RouteName
+	return data.MsgBody.BusRouteInfoItem
 }
-
-//func GetRouteInfo()
 
 // getDataFromAPI is a function that get data from GBUS API.
 func getDataFromAPI(URL string) (responseBody []byte, funcErr error) {

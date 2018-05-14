@@ -63,6 +63,20 @@ func TestGetRouteNameFromRouteID(t *testing.T) {
 	}
 }
 
+func TestGetRouteInfo(t *testing.T) {
+	tt := []struct {
+		routeID    string
+		httpStatus int
+		resultCode int
+	}{
+		{"234000026", http.StatusOK, 0},
+	}
+	for _, tc := range tt {
+		resultData := GetRouteInfo(tc.routeID)
+		fmt.Println(resultData)
+	}
+}
+
 func TestGetDataFromAPI(t *testing.T) {
 	tt := []struct {
 		URL               string
