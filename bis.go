@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -315,9 +316,21 @@ func GetBusArrivalList(stationID string) BusRouteList {
 	return data.MsgBody.BusRouteList
 }
 
-func FillRouteNumber(stationID string, bal BusArrivalList) BusArrivalList {
+// FillRouteNumber is a function that fills the route numbers of BusArrivalList
+func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrivalList {
+	busList := GetBusArrivalList(stationID)
 
-	return bal
+	for _, bus := range busList {
+		for i := 0; i < len(busArrivalList); i++ {
+			if bus.RouteID == busArrivalList[i].RouteID {
+				busArrivalList[i].RouteNumber = bus.RouteName
+				fmt.Println("test:" + busArrivalList[i].RouteNumber)
+				break
+			}
+		}
+	}
+
+	return busArrivalList
 }
 
 // getDataFromAPI is a function that get data from GBUS API.
