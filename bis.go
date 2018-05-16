@@ -17,6 +17,8 @@ const (
 	BusRouteURLPath = "busrouteservice"
 	// BusLocationURLPath is a constant that stores the URL Path to the bus location.
 	BusLocationURLPath = "buslocationservice"
+	// BusArrivalURLPath is a constant that stores the URL Path to the bus arrival.
+	BusArrivalURLPath = "busarrivalservice"
 )
 
 // ComMsgHeader is a structure that specifies the data format of the common header in the APIResponseBody.
@@ -187,6 +189,40 @@ type BusLocation struct {
 	StationSeq    int      `xml:"stationSeq" json:"stationSeq"`
 }
 
+// ArrivalResponseBody is a structure that specifies the data format to be responsed from the API.
+type ArrivalResponseBody struct {
+	XMLName      xml.Name       `xml:"response"`
+	ComMsgHeader ComMsgHeader   `xml:"comMsgHeader"`
+	MsgHeader    MsgHeader      `xml:"msgHeader"`
+	MsgBody      ArrivalMsgBody `xml:"msgBody"`
+}
+
+// ArrivalMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
+type ArrivalMsgBody struct {
+	XMLName        xml.Name       `xml:"msgBody"`
+	BusArrivalList BusArrivalList `xml:"busArrivalList"`
+}
+
+// BusArrivalList is an slice of BusArrivals.
+type BusArrivalList []BusArrival
+
+// BusArrival is a structure that specifies the data format of the bus arrival in the MsgBody.
+type BusArrival struct {
+	XMLName        xml.Name `xml:"busArrivalList" json:"-"`
+	LocationNo1    int      `xml:"locationNo1"`
+	LocationNo2    int      `xml:"locationNo2"`
+	LowPlate1      int      `xml:"lowPlate1"`
+	LowPlate2      int      `xml:"lowPlate2"`
+	PlateNo1       string   `xml:"plateNo1"`
+	PlateNo2       string   `xml:"plateNo2"`
+	PredictTime1   int      `xml:"predictTime1"`
+	PredictTime2   int      `xml:"predictTime2"`
+	RemainSeatCnt1 int      `xml:"remainSeatCnt1"`
+	RemainSeatCnt2 int      `xml:"remainSeatCnt2"`
+	RouteID        string   `xml:"routeId"`
+	StaOrder       int      `xml:"staOrder"`
+}
+
 // SearchForStation is a function that searches for bus station using keywords.
 func SearchForStation(keyword string) BusStationList {
 	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
@@ -251,6 +287,22 @@ func GetCurrentBusLocation(routeID string) BusLocationList {
 	_ = xml.Unmarshal(responseBody, &data)
 
 	return data.MsgBody.BusLocationList
+}
+
+// GetBusArrivalTime is a function that takes the arrival time information of the station
+func GetBusArrivalTime(stationID string) BusArrivalList {
+	URL := CommonURL + "/" + BusArrivalURLPath + "/station?serviceKey=" + config.ServiceKey + "&stationId=" + url.PathEscape(stationID)
+
+	responseBody, _ := getDataFromAPI(URL)
+
+	var data ArrivalResponseBody
+	_ = xml.Unmarshal(responseBody, &data)
+
+	return data.MsgBody.BusArrivalList
+}
+
+func GetBusArrivalList() {
+
 }
 
 // getDataFromAPI is a function that get data from GBUS API.

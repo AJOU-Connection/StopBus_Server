@@ -91,6 +91,20 @@ func TestGetCurrentBusLocation(t *testing.T) {
 	}
 }
 
+func TestGetBusArrivalTime(t *testing.T) {
+	tt := []struct {
+		stationID  string
+		httpStatus int
+		resultCode int
+	}{
+		{"203000066", http.StatusOK, 0},
+	}
+	for _, tc := range tt {
+		resultData := GetBusArrivalTime(tc.stationID)
+		fmt.Println(resultData)
+	}
+}
+
 func TestGetDataFromAPI(t *testing.T) {
 	tt := []struct {
 		URL               string
