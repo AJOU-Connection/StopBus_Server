@@ -266,6 +266,19 @@ func GetRouteNameFromRouteID(routeID string) string {
 	return data.RouteName
 }
 
+func GetStationIDFromStationNumber(districtCd int, stationNumber string) (stationID string) {
+	data := SearchForStation(stationNumber)
+
+	for _, st := range data {
+		if st.DistrictCd == districtCd && st.MobileNo == stationNumber {
+			stationID = st.StationID
+			break
+		}
+	}
+
+	return
+}
+
 // GetRouteInfo is a function that get route information from routeID.
 func GetRouteInfo(routeID string) BusRouteInfoItem {
 	URL := CommonURL + "/" + BusRouteURLPath + "/info?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
