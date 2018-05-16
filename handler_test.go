@@ -280,3 +280,51 @@ func TestBusStationListHandler(t *testing.T) {
 		fmt.Println(string(resBody))
 	}
 }
+
+func TestBusArrivalHandler(t *testing.T) {
+	tt := []struct {
+		districtCd     int
+		stationNumber  string
+		httpStatusCode int
+	}{
+		{2, "04237", http.StatusOK},
+		{2, "03126", http.StatusOK},
+		{2, "03124", http.StatusOK},
+		{2, "03117", http.StatusOK},
+		{2, "03105", http.StatusOK},
+	}
+
+	for _, tc := range tt {
+		rawBody := OnlyStationNumberInput{tc.districtCd, tc.stationNumber}
+
+		jsonBody, err := json.Marshal(rawBody)
+		if err != nil {
+			t.Fatalf("could not parsed json data: %v", err)
+		}
+		reqBody := bytes.NewBufferString(string(jsonBody))
+
+		req, err := http.NewRequest("POST", "localhost:51234/user/busArrival", reqBody)
+
+		if err != nil {
+			t.Fatalf("could not created request: %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		rec := httptest.NewRecorder()
+
+		BusArrivalHandler(rec, req)
+
+		res := rec.Result()
+		defer res.Body.Close()
+		if res.StatusCode != tc.httpStatusCode {
+			t.Fatalf("expected status OK; got %v", res.Status)
+		}
+
+		resBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Fatalf("could not read response: %v", err)
+		}
+
+		fmt.Println(string(resBody))
+	}
+}

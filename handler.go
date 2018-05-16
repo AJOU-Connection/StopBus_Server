@@ -46,6 +46,11 @@ type OnlyRouteIDInput struct {
 	RouteID string `json:"routeID"`
 }
 
+type OnlyStationNumberInput struct {
+	DistrictCd    int    `json:"districtCd"`
+	StationNumber string `json:"stationNumber"`
+}
+
 // Handler is a function that handles the entire routing in the server.
 func Handler() http.Handler {
 	r := mux.NewRouter()
@@ -56,6 +61,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
 	r.HandleFunc("/user/busLocationList", PostOnly(BusLocationListHandler))
 	r.HandleFunc("/user/busStationList", PostOnly(BusStationListHandler))
+	r.HandleFunc("/user/busArrival", PostOnly(BusArrivalHandler))
 
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	return loggedRouter
@@ -199,6 +205,33 @@ func BusLocationListHandler(w http.ResponseWriter, r *http.Request) {
 	var data interface{}
 
 	data = GetCurrentBusLocation(orii.RouteID)
+
+	jsonBody := JSONBody{
+		header,
+		data,
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+// BusArrivalHandler is a function that handles routing for bus arrival time
+func BusArrivalHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	var osni OnlyStationNumberInput
+	_ = json.Unmarshal(body, &osni)
+
+	header := Header{true, 0, ""}
+	var data interface{}
+
+	stationID := GetStationIDFromStationNumber(osni.DistrictCd, osni.StationNumber)
+	data = GetBusArrivalTime(stationID)
 
 	jsonBody := JSONBody{
 		header,
