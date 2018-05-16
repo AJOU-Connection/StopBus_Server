@@ -221,6 +221,7 @@ type BusArrival struct {
 	RemainSeatCnt2 int      `xml:"remainSeatCnt2" json:"remainSeatCnt2"`
 	RouteID        string   `xml:"routeId" json:"routeId"`
 	RouteNumber    string   `xml:"-" json:"routeNumber"`
+	RouteTypeName  string   `xml:"-" json:"routeTypeName"`
 	StaOrder       int      `xml:"staOrder" json:"-"`
 }
 
@@ -264,6 +265,11 @@ func GetRouteStationList(routeID string) BusRouteStationList {
 func GetRouteNameFromRouteID(routeID string) string {
 	data := GetRouteInfo(routeID)
 	return data.RouteName
+}
+
+func GetRouteTypeNameFromRouteID(routeID string) string {
+	data := GetRouteInfo(routeID)
+	return data.RouteTypeName
 }
 
 func GetStationIDFromStationNumber(districtCd int, stationNumber string) (stationID string) {
@@ -337,6 +343,7 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 		for i := 0; i < len(busArrivalList); i++ {
 			if bus.RouteID == busArrivalList[i].RouteID {
 				busArrivalList[i].RouteNumber = bus.RouteName
+				busArrivalList[i].RouteTypeName = GetRouteTypeNameFromRouteID(bus.RouteID)
 				break
 			}
 		}
