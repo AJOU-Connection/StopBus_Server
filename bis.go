@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/xml"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 const (
@@ -221,7 +221,7 @@ type BusArrival struct {
 	RemainSeatCnt2 int      `xml:"remainSeatCnt2" json:"remainSeatCnt2"`
 	RouteID        string   `xml:"routeId" json:"routeId"`
 	RouteNumber    string   `xml:"-" json:"routeNumber"`
-	StaOrder       int      `xml:"staOrder" json:"staOrder"`
+	StaOrder       int      `xml:"staOrder" json:"-"`
 }
 
 // SearchForStation is a function that searches for bus station using keywords.
@@ -270,7 +270,7 @@ func GetStationIDFromStationNumber(districtCd int, stationNumber string) (statio
 	data := SearchForStation(stationNumber)
 
 	for _, st := range data {
-		if st.DistrictCd == districtCd && st.MobileNo == stationNumber {
+		if (st.DistrictCd == districtCd) && (strings.TrimSpace(st.MobileNo) == stationNumber) {
 			stationID = st.StationID
 			break
 		}
@@ -337,7 +337,6 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 		for i := 0; i < len(busArrivalList); i++ {
 			if bus.RouteID == busArrivalList[i].RouteID {
 				busArrivalList[i].RouteNumber = bus.RouteName
-				fmt.Println("test:" + busArrivalList[i].RouteNumber)
 				break
 			}
 		}
