@@ -292,6 +292,7 @@ func TestBusArrivalHandler(t *testing.T) {
 		{2, "03124", http.StatusOK},
 		{2, "03117", http.StatusOK},
 		{2, "03105", http.StatusOK},
+		{2, "03247", http.StatusOK},
 	}
 
 	for _, tc := range tt {
