@@ -10,7 +10,16 @@ import (
 
 // configuration is a structure that specifies the contents of config.json.
 type configuration struct {
-	ServiceKey string `json:"serviceKey"`
+	ServiceKey string   `json:"serviceKey"`
+	Database   Database `json:"database"`
+}
+
+type Database struct {
+	User    string `json:"user"`
+	Passwd  string `json:"passwd"`
+	IP_addr string `json:"ip_addr"`
+	Port    string `json:"port"`
+	DBname  string `json:"dbname"`
 }
 
 // config is a variable that stores configuration information.
