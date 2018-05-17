@@ -117,9 +117,9 @@ type BusRouteStation struct {
 	XMLName     xml.Name `xml:"busRouteStationList" json:"-"`
 	CenterYn    string   `xml:"centerYn" json:"-"`
 	DistrictCd  int      `xml:"districtCd" json:"-"`
-	MobileNo    string   `xml:"mobileNo" json:"stationNumber"`
+	MobileNo    string   `xml:"mobileNo" json:"-"`
 	RegionName  string   `xml:"regionName" json:"-"`
-	StationID   string   `xml:"stationId" json:"-"`
+	StationID   string   `xml:"stationId" json:"stationID"`
 	StationName string   `xml:"stationName" json:"stationName"`
 	X           float32  `xml:"x" json:"-"`
 	Y           float32  `xml:"y" json:"-"`
