@@ -7,7 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
+	"time"
 )
 
 func TestHandler(t *testing.T) {
@@ -126,6 +128,42 @@ func TestGapHandler(t *testing.T) {
 		res := rec.Result()
 		defer res.Body.Close()
 		if res.StatusCode != tc.httpStatusCode {
+			t.Fatalf("expected status OK; got %v", res.Status)
+		}
+
+		resBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Fatalf("could not read response: %v", err)
+		}
+
+		fmt.Println(string(resBody))
+	}
+}
+
+func TestUserRegisterHandler(t *testing.T) {
+	for i := 0; i < 10; i++ {
+		rawBody := User{"testToken_" + strconv.Itoa(time.Now().Nanosecond()), "testUUID_" + strconv.Itoa(time.Now().Nanosecond())}
+
+		jsonBody, err := json.Marshal(rawBody)
+		if err != nil {
+			t.Fatalf("could not parsed json data: %v", err)
+		}
+		reqBody := bytes.NewBufferString(string(jsonBody))
+
+		req, err := http.NewRequest("POST", "localhost:51234/user/register", reqBody)
+
+		if err != nil {
+			t.Fatalf("could not created request: %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		rec := httptest.NewRecorder()
+
+		UserRegisterHandler(rec, req)
+
+		res := rec.Result()
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusOK {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
