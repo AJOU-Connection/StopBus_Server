@@ -93,6 +93,51 @@ func TestDriverRegisterHandler(t *testing.T) {
 	fmt.Println(string(resBody))
 }
 
+func TestGapHandler(t *testing.T) {
+	tt := []struct {
+		gapInput       GapInput
+		httpStatusCode int
+	}{
+		{GapInput{"234000026", "201000348"}, http.StatusOK},
+		{GapInput{"234000026", "201000126"}, http.StatusOK},
+		{GapInput{"234000026", "201000125"}, http.StatusOK},
+		{GapInput{"234000026", "202000015"}, http.StatusOK},
+		{GapInput{"234000026", "203000066"}, http.StatusOK},
+	}
+
+	for _, tc := range tt {
+		jsonBody, err := json.Marshal(tc.gapInput)
+		if err != nil {
+			t.Fatalf("could not parsed json data: %v", err)
+		}
+		reqBody := bytes.NewBufferString(string(jsonBody))
+
+		req, err := http.NewRequest("POST", "localhost:51234/driver/gap", reqBody)
+
+		if err != nil {
+			t.Fatalf("could not created request: %v", err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+
+		rec := httptest.NewRecorder()
+
+		GapHandler(rec, req)
+
+		res := rec.Result()
+		defer res.Body.Close()
+		if res.StatusCode != tc.httpStatusCode {
+			t.Fatalf("expected status OK; got %v", res.Status)
+		}
+
+		resBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			t.Fatalf("could not read response: %v", err)
+		}
+
+		fmt.Println(string(resBody))
+	}
+}
+
 func TestSearchHandler(t *testing.T) {
 	tt := []struct {
 		reqType        string

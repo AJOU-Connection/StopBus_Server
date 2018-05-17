@@ -36,6 +36,11 @@ type DriverInput struct {
 	RouteID string `json:"routeID"`
 }
 
+type GapInput struct {
+	RouteID   string `json:"routeID"`
+	StationID string `json:"stationID"`
+}
+
 // SearchInput is a structure that specifies the format of POST Request Body in SearchHandler.
 type SearchInput struct {
 	Keyword string `json:"keyword"`
@@ -57,6 +62,7 @@ func Handler() http.Handler {
 
 	r.HandleFunc("/", GetOnly(IndexHandler))
 	r.HandleFunc("/driver/register", PostOnly(DriverRegisterHandler))
+	r.HandleFunc("/driver/gap", PostOnly(GapHandler))
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
 	r.HandleFunc("/user/busLocationList", PostOnly(BusLocationListHandler))
@@ -89,6 +95,49 @@ func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	jsonBody := JSONBody{
 		Header{true, 0, ""},
 		BusStationInput{busNumber, BISData},
+	}
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+// GapHandler is a function that handles the routing for gap time between buses
+func GapHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	var gi GapInput
+	_ = json.Unmarshal(body, &gi)
+
+	BISData := GetBusArrivalTime(gi.StationID)
+	var gapData interface{}
+
+	for _, data := range BISData {
+		if data.RouteID == gi.RouteID {
+			gapData = struct {
+				LocationNo1  int    `json:"locationNo1"`
+				LocationNo2  int    `json:"locationNo2"`
+				PlateNo1     string `json:"plateNo1"`
+				PlateNo2     string `json:"plateNo2"`
+				PredictTime1 int    `json:"predictTime1"`
+				PredictTime2 int    `json:"predictTime2"`
+			}{
+				data.LocationNo1,
+				data.LocationNo2,
+				data.PlateNo1,
+				data.PlateNo2,
+				data.PredictTime1,
+				data.PredictTime2,
+			}
+		}
+	}
+
+	jsonBody := JSONBody{
+		Header{true, 0, ""},
+		gapData,
 	}
 	jsonValue, _ := json.Marshal(jsonBody)
 
