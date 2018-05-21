@@ -93,6 +93,7 @@ type BusRoute struct {
 	RouteID       string   `xml:"routeId" json:"routeID"`
 	RouteName     string   `xml:"routeName" json:"routeNumber"`
 	RouteTypeName string   `xml:"routeTypeName" json:"routeTypeName"`
+	StaOrder      int      `xml:"staOrder" json:"-"`
 }
 
 // RouteStationResponseBody is a structure that specifies the data format to be responsed from the API.
@@ -234,7 +235,9 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	return data.MsgBody.BusStationList
+	ret := FillStationDirect(data.MsgBody.BusStationList)
+
+	return ret
 }
 
 // SearchForRoute is a function that searches for bus routes using keywords.
@@ -350,6 +353,36 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 	}
 
 	return busArrivalList
+}
+
+func FillStationDirect(busStationList BusStationList) BusStationList {
+	for i := 0; i < len(busStationList); i++ {
+		busStationList[i].StationDirect = GetStationDirect(busStationList[i].StationID)
+	}
+
+	return busStationList
+}
+
+func GetStationDirect(stationID string) (stationDirect string) {
+	busRouteList := GetBusArrivalList(stationID)
+	returnList := []string{}
+	directCount := map[string]int{}
+
+	for _, busRoute := range busRouteList {
+		busRouteStationList := GetRouteStationList(busRoute.RouteID)
+		returnList = append(returnList, busRouteStationList[busRoute.StaOrder].StationName)
+		directCount[busRouteStationList[busRoute.StaOrder].StationName]++
+	}
+
+	max := -1
+	for k, cnt := range directCount {
+		if max < cnt {
+			max = cnt
+			stationDirect = k
+		}
+	}
+
+	return stationDirect
 }
 
 // getDataFromAPI is a function that get data from GBUS API.

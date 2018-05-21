@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/http"
 	"strings"
@@ -136,6 +137,28 @@ func TestGetBusArrivalList(t *testing.T) {
 	for _, tc := range tt {
 		resultData := GetBusArrivalList(tc.stationID)
 		fmt.Println(resultData)
+	}
+}
+
+func TestFillStationDirect(t *testing.T) {
+	testBusStationList := BusStationList{
+		BusStation{xml.Name{"busStationList", "busStationList"}, "N", 2, "03129", "수원", "202000004", "아주대학교입구", 127.04377, 37.275715, ""},
+		BusStation{xml.Name{"busStationList", "busStationList"}, "N", 2, "04238", "수원", "203000067", "아주대학교입구", 127.044136, 37.27603, ""},
+	}
+	ret := FillStationDirect(testBusStationList)
+	fmt.Println(ret)
+}
+
+func TestGetStationDirect(t *testing.T) {
+	tt := []struct {
+		stationID string
+	}{
+		{"202000004"},
+		{"203000067"},
+	}
+	for _, tc := range tt {
+		sd := GetStationDirect(tc.stationID)
+		fmt.Println(sd)
 	}
 }
 
