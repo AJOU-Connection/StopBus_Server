@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 const (
@@ -356,10 +357,17 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 }
 
 func FillStationDirect(busStationList BusStationList) BusStationList {
+	var wait sync.WaitGroup
+
 	for i := 0; i < len(busStationList); i++ {
-		busStationList[i].StationDirect = GetStationDirect(busStationList[i].StationID)
+		wait.Add(1)
+		go func(j int) {
+			defer wait.Done()
+			busStationList[j].StationDirect = GetStationDirect(busStationList[j].StationID)
+		}(i)
 	}
 
+	wait.Wait()
 	return busStationList
 }
 
