@@ -60,7 +60,7 @@ type User struct {
 	UUID  string `json:"UUID"`
 }
 
-type GetIn struct {
+type Reserv struct {
 	UserToken string `json:userToken`
 	RouteID   string `json:routeID`
 	StationID string `json:stationID`
@@ -73,12 +73,14 @@ func Handler() http.Handler {
 	r.HandleFunc("/", GetOnly(IndexHandler))
 	r.HandleFunc("/driver/register", PostOnly(DriverRegisterHandler))
 	r.HandleFunc("/driver/gap", PostOnly(GapHandler))
-	// r.HandleFunc("/user/register", PostOnly(UserRegisterHandler))
+	r.HandleFunc("/user/register", PostOnly(UserRegisterHandler))
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
 	r.HandleFunc("/user/busLocationList", PostOnly(BusLocationListHandler))
 	r.HandleFunc("/user/busStationList", PostOnly(BusStationListHandler))
 	r.HandleFunc("/user/busArrival", PostOnly(BusArrivalHandler))
+	r.HandleFunc("/user/reserv/getIn", PostOnly(ReservGetInHandler))
+	r.HandleFunc("/user/reserv/getOut", PostOnly(ReservGetInHandler))
 
 	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 	return loggedRouter
@@ -331,3 +333,59 @@ func BusArrivalHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintln(w, string(jsonValue))
 }
+
+func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	var reserv Reserv
+	_ = json.Unmarshal(body, &reserv)
+
+	jsonBody := struct {
+		Header Header `json:"header"`
+	}{
+		Header{true, 0, ""},
+	}
+
+	ret := addGetIn(reserv)
+	if ret != nil {
+		jsonBody.Header.Result = false
+		jsonBody.Header.ErrorCode = 1
+		jsonBody.Header.ErrorContent = "Failed to reserve get in"
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+// func ReservGetOutHandler(w http.ResponseWriter, r *http.Request) {
+// 	defer r.Body.Close()
+
+// 	body, _ := ioutil.ReadAll(r.Body)
+// 	fmt.Println(string(body))
+
+// 	var reserv Reserv
+// 	_ = json.Unmarshal(body, &reserv)
+
+// 	jsonBody := struct {
+// 		Header Header `json:"header"`
+// 	}{
+// 		Header{true, 0, ""},
+// 	}
+
+// 	ret := addGetOut(reserv)
+// 	if ret != nil {
+// 		jsonBody.Header.Result = false
+// 		jsonBody.Header.ErrorCode = 1
+// 		jsonBody.Header.ErrorContent = "Failed to reserve getIn"
+// 	}
+
+// 	jsonValue, _ := json.Marshal(jsonBody)
+
+// 	w.Header().Set("Content-Type", "application/json")
+// 	fmt.Fprintln(w, string(jsonValue))
+// }
