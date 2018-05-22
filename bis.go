@@ -227,6 +227,29 @@ type BusArrival struct {
 	StaOrder       int      `xml:"staOrder" json:"-"`
 }
 
+// ArrivalItemResponseBody is a structure that specifies the data format to be responsed from the API.
+type ArrivalItemResponseBody struct {
+	XMLName      xml.Name           `xml:"response"`
+	ComMsgHeader ComMsgHeader       `xml:"comMsgHeader"`
+	MsgHeader    MsgHeader          `xml:"msgHeader"`
+	MsgBody      ArrivalItemMsgBody `xml:"msgBody"`
+}
+
+// ArrivalItemMsgBody is a structure that specifies the data format of the message body in the APIResponseBody.
+type ArrivalItemMsgBody struct {
+	XMLName        xml.Name       `xml:"msgBody"`
+	BusArrivalItem BusArrivalItem `xml:"busArrivalItem"`
+}
+
+type BusArrivalItem struct {
+	LocationNo1  int    `xml:"locationNo1" json:"locationNo1"`
+	LocationNo2  int    `xml:"locationNo2" json:"locationNo2"`
+	PlateNo1     string `xml:"plateNo1" json:"plateNo1"`
+	PlateNo2     string `xml:"plateNo2" json:"plateNo2"`
+	PredictTime1 int    `xml:"predictTime1" json:"predictTime1"`
+	PredictTime2 int    `xml:"predictTime2" json:"predictTime2"`
+}
+
 // SearchForStation is a function that searches for bus station using keywords.
 func SearchForStation(keyword string) BusStationList {
 	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
@@ -311,6 +334,17 @@ func GetCurrentBusLocation(routeID string) BusLocationList {
 	_ = xml.Unmarshal(responseBody, &data)
 
 	return data.MsgBody.BusLocationList
+}
+
+func GetBusArrivalOnlyOne(routeID string, stationID string) BusArrivalItem {
+	URL := CommonURL + "/" + BusArrivalURLPath + "?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID) + "&stationId=" + url.PathEscape(stationID)
+
+	responseBody, _ := getDataFromAPI(URL)
+
+	var data ArrivalItemResponseBody
+	_ = xml.Unmarshal(responseBody, &data)
+
+	return data.MsgBody.BusArrivalItem
 }
 
 // GetBusArrivalTime is a function that gets the arrival time information of the station

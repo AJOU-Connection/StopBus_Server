@@ -111,6 +111,27 @@ func TestGetCurrentBusLocation(t *testing.T) {
 	}
 }
 
+func TestGetBusArrivalOnlyOne(t *testing.T) {
+	tt := []struct {
+		routeID    string
+		stationID  string
+		httpStatus int
+		resultCode int
+	}{
+		{"223000100", "203000066", http.StatusOK, 0},
+		{"234000026", "203000066", http.StatusOK, 0},
+		{"234000024", "203000066", http.StatusOK, 0},
+		{"200000053", "203000066", http.StatusOK, 0},
+		{"200000110", "203000066", http.StatusOK, 0},
+		{"200000112", "203000066", http.StatusOK, 0},
+		{"200000144", "203000066", http.StatusOK, 0},
+	}
+	for _, tc := range tt {
+		resultData := GetBusArrivalOnlyOne(tc.routeID, tc.stationID)
+		fmt.Println(resultData)
+	}
+}
+
 func TestGetBusArrivalTime(t *testing.T) {
 	tt := []struct {
 		stationID  string
