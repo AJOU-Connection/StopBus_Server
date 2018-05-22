@@ -19,3 +19,17 @@ func addUserToken(user User) error {
 	}
 	return nil
 }
+
+func addGetIn(gi GetIn) error {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return err
+	}
+	defer mysql.Close()
+
+	_, err = mysql.Exec("INSERT INTO GetIn VALUES (?, ?, ?)", gi.UserToken, gi.RouteID, gi.StationID)
+	if err != nil { // error exists
+		return err
+	}
+	return nil
+}
