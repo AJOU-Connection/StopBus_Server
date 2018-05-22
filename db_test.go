@@ -15,7 +15,7 @@ func TestAddUserToken(t *testing.T) {
 }
 
 func TestAddGetIn(t *testing.T) {
-	ret := addGetIn(GetIn{"testToken_1", "tRouteID1", "StationID"})
+	ret := addGetIn(Reserv{"testToken_2", "tRouteID1", "StationID"})
 	if ret != nil {
 		log.Printf("expected %v; got %v\n", 1, ret)
 	}
