@@ -1,1 +1,11 @@
-{"serviceKey":"testServiceKey"}
+{
+    "serviceKey": "testServiceKey",
+    "serverKey":"testServerKey",
+    "database":{
+        "user":"testUser",
+        "passwd":"testPasswd",
+        "ip_addr":"testIp_Addr",
+        "port":"testPort",
+        "dbname":"testDbname"
+    }
+}
