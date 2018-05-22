@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"testing"
 )
 
@@ -149,23 +148,23 @@ func TestGetBusArrivalList(t *testing.T) {
 // 	fmt.Println(ret)
 // }
 
-func TestGetStationDirect(t *testing.T) {
-	var wg sync.WaitGroup
+// func TestGetStationDirect(t *testing.T) {
+// 	var wg sync.WaitGroup
 
-	tt := []struct {
-		stationID string
-	}{
-		{"202000004"},
-		{"203000067"},
-	}
-	for _, tc := range tt {
-		wg.Add(1)
-		go func() {
-			_ = GetStationDirect(&wg, tc.stationID)
-		}()
-	}
-	wg.Wait()
-}
+// 	tt := []struct {
+// 		stationID string
+// 	}{
+// 		{"202000004"},
+// 		{"203000067"},
+// 	}
+// 	for _, tc := range tt {
+// 		wg.Add(1)
+// 		go func() {
+// 			_ = GetStationDirect(&wg, tc.stationID)
+// 		}()
+// 	}
+// 	wg.Wait()
+// }
 
 func TestGetDataFromAPI(t *testing.T) {
 	tt := []struct {
