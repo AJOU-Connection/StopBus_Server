@@ -14,6 +14,7 @@ func TargetObserver(routeID string, stationID string) {
 	}, 10*time.Second)
 	for {
 		if isSuccess {
+			fmt.Println("Alert:", stationID, "/", routeID)
 			stop()
 			break
 		}
@@ -22,6 +23,9 @@ func TargetObserver(routeID string, stationID string) {
 }
 
 func Observer(routeID string, stationID string) bool {
-	fmt.Println("Observer()")
-	return true
+	arrivalItem := GetBusArrivalOnlyOne(routeID, stationID)
+	if arrivalItem.PredictTime1 == 2 {
+		return true
+	}
+	return false
 }
