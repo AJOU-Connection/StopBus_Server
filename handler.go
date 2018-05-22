@@ -60,6 +60,12 @@ type User struct {
 	UUID  string `json:"UUID"`
 }
 
+type GetIn struct {
+	UserToken string `json:userToken`
+	RouteID   string `json:routeID`
+	StationID string `json:stationID`
+}
+
 // Handler is a function that handles the entire routing in the server.
 func Handler() http.Handler {
 	r := mux.NewRouter()
