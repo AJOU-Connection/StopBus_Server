@@ -11,6 +11,7 @@ import (
 // configuration is a structure that specifies the contents of config.json.
 type configuration struct {
 	ServiceKey string   `json:"serviceKey"`
+	ServerKey  string   `json:"serverKey"`
 	Database   Database `json:"database"`
 }
 
