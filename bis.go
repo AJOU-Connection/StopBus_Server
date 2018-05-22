@@ -357,29 +357,30 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 }
 
 func FillStationDirect(busStationList BusStationList) BusStationList {
-	var wait sync.WaitGroup
+	var wg sync.WaitGroup
 
 	for i := 0; i < len(busStationList); i++ {
-		wait.Add(1)
+		wg.Add(1)
 		go func(j int) {
-			defer wait.Done()
-			busStationList[j].StationDirect = GetStationDirect(busStationList[j].StationID)
+			busStationList[j].StationDirect = GetStationDirect(&wg, busStationList[j].StationID)
 		}(i)
 	}
 
-	wait.Wait()
+	wg.Wait()
 	return busStationList
 }
 
-func GetStationDirect(stationID string) (stationDirect string) {
+func GetStationDirect(wg *sync.WaitGroup, stationID string) (stationDirect string) {
+	defer wg.Done()
+
 	busRouteList := GetBusArrivalList(stationID)
 	returnList := []string{}
 	directCount := map[string]int{}
 
-	for _, busRoute := range busRouteList {
-		busRouteStationList := GetRouteStationList(busRoute.RouteID)
-		returnList = append(returnList, busRouteStationList[busRoute.StaOrder].StationName)
-		directCount[busRouteStationList[busRoute.StaOrder].StationName]++
+	for i := 0; i < len(busRouteList); i++ {
+		busRouteStationList := GetRouteStationList(busRouteList[i].RouteID)
+		returnList = append(returnList, busRouteStationList[busRouteList[i].StaOrder].StationName)
+		directCount[busRouteStationList[busRouteList[i].StaOrder].StationName]++
 	}
 
 	max := -1
