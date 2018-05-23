@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aubm/interval"
@@ -14,7 +13,8 @@ func TargetObserver(routeID string, stationID string) {
 	}, 10*time.Second)
 	for {
 		if isSuccess {
-			fmt.Println("Alert:", stationID, "/", routeID)
+			GetInAlert(routeID, stationID)
+			deleteGetIn(routeID, stationID)
 			stop()
 			break
 		}
