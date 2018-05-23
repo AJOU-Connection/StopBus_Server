@@ -33,3 +33,17 @@ func addGetIn(r Reserv) error {
 	}
 	return nil
 }
+
+func deleteGetIn(routeID string, stationID string) error {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return err
+	}
+	defer mysql.Close()
+
+	_, err = mysql.Exec("DELETE FROM GetIn WHERE routeID = ? AND stationID = ?", routeID, stationID)
+	if err != nil { // error exists
+		return err
+	}
+	return nil
+}
