@@ -241,6 +241,7 @@ type ArrivalItemMsgBody struct {
 	BusArrivalItem BusArrivalItem `xml:"busArrivalItem"`
 }
 
+// BusArrivalItem is a structure that specifies the data format of the bus arrival in the MsgBody.
 type BusArrivalItem struct {
 	LocationNo1  int    `xml:"locationNo1" json:"locationNo1"`
 	LocationNo2  int    `xml:"locationNo2" json:"locationNo2"`
@@ -294,11 +295,13 @@ func GetRouteNameFromRouteID(routeID string) string {
 	return data.RouteName
 }
 
+// GetRouteTypeNameFromRouteID is a function that get route type from routeID.
 func GetRouteTypeNameFromRouteID(routeID string) string {
 	data := GetRouteInfo(routeID)
 	return data.RouteTypeName
 }
 
+// GetStationIDFromStationNumber is a function that get stationID from station number.
 func GetStationIDFromStationNumber(districtCd int, stationNumber string) (stationID string) {
 	data := SearchForStation(stationNumber)
 
@@ -336,6 +339,7 @@ func GetCurrentBusLocation(routeID string) BusLocationList {
 	return data.MsgBody.BusLocationList
 }
 
+// GetBusArrivalOnlyOne is a function that gets the arrival time information of the station
 func GetBusArrivalOnlyOne(routeID string, stationID string) BusArrivalItem {
 	URL := CommonURL + "/" + BusArrivalURLPath + "?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID) + "&stationId=" + url.PathEscape(stationID)
 
@@ -390,6 +394,7 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 	return busArrivalList
 }
 
+// FillStationDirect is a function that fills the station directs of BusStationList
 func FillStationDirect(busStationList BusStationList) BusStationList {
 	var wg sync.WaitGroup
 
@@ -404,6 +409,7 @@ func FillStationDirect(busStationList BusStationList) BusStationList {
 	return busStationList
 }
 
+// GetStationDirect is a function that get stationDirect from a stationID
 func GetStationDirect(wg *sync.WaitGroup, stationID string) (stationDirect string) {
 	defer wg.Done()
 
