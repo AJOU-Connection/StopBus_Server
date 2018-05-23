@@ -349,13 +349,35 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 		Header{true, 0, ""},
 	}
 
-	ret := addGetIn(reserv)
-	if ret != nil {
-		jsonBody.Header.Result = false
-		jsonBody.Header.ErrorCode = 1
-		jsonBody.Header.ErrorContent = "Failed to reserve get in"
+	// routeID and stationID check
+	busList := GetBusArrivalList(reserv.StationID)
+	isInBusList := false
+	for _, bus := range busList {
+		if bus.RouteID == reserv.RouteID {
+			isInBusList = true
+			break
+		}
 	}
+	if !isInBusList {
+		jsonBody.Header.Result = false
+		jsonBody.Header.ErrorCode = 2
+		jsonBody.Header.ErrorContent = "Invalid bus routeID and stationID"
+	} else {
+		// 2분 이내라면 즉시 알람
+		data := GetBusArrivalOnlyOne(reserv.RouteID, reserv.StationID)
+		if data.PredictTime1 < 2 {
+			GetInAlert(reserv.RouteID, reserv.StationID)
+		} else { // 아니라면 DB에 추가하고, Scheduler에 추가하기
+			ret := addGetIn(reserv)
+			go TargetObserver(reserv.RouteID, reserv.StationID)
+			if ret != nil {
+				jsonBody.Header.Result = false
+				jsonBody.Header.ErrorCode = 1
+				jsonBody.Header.ErrorContent = "Failed to reserve get in"
+			}
+		}
 
+	}
 	jsonValue, _ := json.Marshal(jsonBody)
 
 	w.Header().Set("Content-Type", "application/json")
