@@ -95,7 +95,7 @@ func TestDriverRegisterHandler(t *testing.T) {
 	fmt.Println(string(resBody))
 }
 
-func TestGapHandler(t *testing.T) {
+func TestDriverGapHandler(t *testing.T) {
 	tt := []struct {
 		gapInput       GapInput
 		httpStatusCode int
@@ -123,7 +123,7 @@ func TestGapHandler(t *testing.T) {
 
 		rec := httptest.NewRecorder()
 
-		GapHandler(rec, req)
+		DriverGapHandler(rec, req)
 
 		res := rec.Result()
 		defer res.Body.Close()

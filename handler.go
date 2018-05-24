@@ -78,8 +78,8 @@ func Handler() http.Handler {
 
 	r.HandleFunc("/", GetOnly(IndexHandler))
 	r.HandleFunc("/driver/register", PostOnly(DriverRegisterHandler))
-	r.HandleFunc("/driver/gap", PostOnly(GapHandler))
-	r.HandleFunc("/driver/stop", PostOnly(StopHandler))
+	r.HandleFunc("/driver/gap", PostOnly(DriverGapHandler))
+	r.HandleFunc("/driver/stop", PostOnly(DriverStopHandler))
 	r.HandleFunc("/user/register", PostOnly(UserRegisterHandler))
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
@@ -122,8 +122,8 @@ func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(jsonValue))
 }
 
-// GapHandler is a function that handles the routing for gap time between buses
-func GapHandler(w http.ResponseWriter, r *http.Request) {
+// DriverGapHandler is a function that handles the routing for gap time between buses
+func DriverGapHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	body, _ := ioutil.ReadAll(r.Body)
@@ -165,7 +165,7 @@ func GapHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, string(jsonValue))
 }
 
-func StopHandler(w http.ResponseWriter, r *http.Request) {
+func DriverStopHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	body, _ := ioutil.ReadAll(r.Body)
