@@ -22,10 +22,11 @@ func GetInAlert(routeID string, stationID string, tokens ...string) {
 	xds := []string{}
 
 	np := fcm.NotificationPayload{}
-	np.Title = "testTitle"
-	np.Body = "곧 버스가 도착합니다."
+	np.Title = "승차알림"
+	np.Body = fmt.Sprintf("[%v] %v번 버스가 곧 도착합니다.", GetStationNameFromStationID(routeID, stationID), GetRouteNameFromRouteID(routeID))
 	np.AndroidChannelID = "stopbus_danbk_mjin1220_notification_channel_id"
 	np.ClickAction = "OPEN_ACTIVITY_1"
+	np.Tag = "stopbus_get_in_tag"
 
 	c := fcm.NewFcmClient(config.ServerKey)
 	c.SetNotificationPayload(&np)
