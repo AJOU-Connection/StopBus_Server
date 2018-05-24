@@ -315,6 +315,17 @@ func GetStationIDFromStationNumber(districtCd int, stationNumber string) (statio
 	return
 }
 
+// GetStationNameFromStationID is a function that get station number from routeID and stationID.
+func GetStationNameFromStationID(routeID string, stationID string) string {
+	rsList := GetRouteStationList(routeID)
+	for _, rs := range rsList {
+		if rs.StationID == stationID {
+			return rs.StationName
+		}
+	}
+	return ""
+}
+
 // GetRouteInfo is a function that get route information from routeID.
 func GetRouteInfo(routeID string) BusRouteInfoItem {
 	URL := CommonURL + "/" + BusRouteURLPath + "/info?serviceKey=" + config.ServiceKey + "&routeId=" + url.PathEscape(routeID)
@@ -380,14 +391,26 @@ func GetBusArrivalList(stationID string) BusRouteList {
 // FillRouteNumber is a function that fills the route numbers of BusArrivalList
 func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrivalList {
 	busList := GetBusArrivalList(stationID)
+	var isDetected bool
 
 	for _, bus := range busList {
+		isDetected = false
 		for i := 0; i < len(busArrivalList); i++ {
 			if bus.RouteID == busArrivalList[i].RouteID {
 				busArrivalList[i].RouteNumber = bus.RouteName
 				busArrivalList[i].RouteTypeName = GetRouteTypeNameFromRouteID(bus.RouteID)
+				isDetected = true
 				break
 			}
+		}
+		if !isDetected {
+			busArrivalList = append(busArrivalList, BusArrival{
+				xml.Name{}, 0, 0, 0, 0, "", "", 0, 0, 0, 0,
+				bus.RouteID,
+				bus.RouteName,
+				bus.RouteTypeName,
+				0,
+			})
 		}
 	}
 
