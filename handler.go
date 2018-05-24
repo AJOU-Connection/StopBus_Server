@@ -36,6 +36,7 @@ type DriverInput struct {
 	RouteID string `json:"routeID"`
 }
 
+type StopInput GapInput
 type GapInput struct {
 	RouteID   string `json:"routeID"`
 	StationID string `json:"stationID"`
@@ -66,6 +67,11 @@ type Reserv struct {
 	StationID string `json:stationID`
 }
 
+type GetInfo struct {
+	IsGetIn  bool `json:"isGetIn"`
+	IsGetOff bool `json:"isGetOff"`
+}
+
 // Handler is a function that handles the entire routing in the server.
 func Handler() http.Handler {
 	r := mux.NewRouter()
@@ -73,6 +79,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/", GetOnly(IndexHandler))
 	r.HandleFunc("/driver/register", PostOnly(DriverRegisterHandler))
 	r.HandleFunc("/driver/gap", PostOnly(GapHandler))
+	r.HandleFunc("/driver/stop", PostOnly(StopHandler))
 	r.HandleFunc("/user/register", PostOnly(UserRegisterHandler))
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
@@ -153,6 +160,60 @@ func GapHandler(w http.ResponseWriter, r *http.Request) {
 		gapData,
 	}
 	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+func StopHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	body, _ := ioutil.ReadAll(r.Body)
+	fmt.Println(string(body))
+
+	var si StopInput
+	_ = json.Unmarshal(body, &si)
+
+	jsonBody := JSONBody{
+		Header{true, 0, ""},
+		GetInfo{},
+	}
+
+	getInCnt, err := getGetInCount(si.RouteID, si.StationID)
+	if err != nil {
+		jsonBody.Header.Result = false
+		jsonBody.Header.ErrorCode = 1
+		jsonBody.Header.ErrorContent = "Failed to select GetIn count"
+	} else {
+		getOutCnt, err := getGetOutCount(si.RouteID, si.StationID)
+		if err != nil {
+			jsonBody.Header.Result = false
+			jsonBody.Header.ErrorCode = 2
+			jsonBody.Header.ErrorContent = "Failed to select GetOut count"
+		} else {
+			getInfo := GetInfo{}
+			if getInCnt != 0 {
+				getInfo.IsGetIn = true
+			}
+			if getOutCnt != 0 {
+				getInfo.IsGetOff = true
+			}
+			jsonBody.Body = getInfo
+		}
+	}
+
+	var jsonValue []byte
+	if err != nil {
+		onlyHeaderJSON := struct {
+			Header Header `json:"header"`
+		}{
+			jsonBody.Header,
+		}
+
+		jsonValue, _ = json.Marshal(onlyHeaderJSON)
+	} else {
+		jsonValue, _ = json.Marshal(jsonBody)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintln(w, string(jsonValue))
