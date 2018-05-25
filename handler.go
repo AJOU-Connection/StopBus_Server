@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -89,7 +89,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/user/reserv/getIn", PostOnly(ReservGetInHandler))
 	r.HandleFunc("/user/reserv/getOut", PostOnly(ReservGetInHandler))
 
-	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
+	loggedRouter := handlers.LoggingHandler(io.Writer(GetLogFile()), r)
 	return loggedRouter
 }
 
