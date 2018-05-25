@@ -6,7 +6,7 @@ import (
 )
 
 func GetLogFile() *os.File {
-	logDirPath := "log"
+	logDirPath := "logs"
 
 	if _, err := os.Stat(logDirPath); os.IsNotExist(err) {
 		os.Mkdir(logDirPath, os.ModeDir)
