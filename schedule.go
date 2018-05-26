@@ -11,21 +11,19 @@ func TargetObserver(routeID string, stationID string) {
 	stop := interval.Start(func() {
 		isSuccess = Observer(routeID, stationID)
 	}, 10*time.Second)
-	for {
+
+	ticker := time.Tick(5 * time.Second)
+	for range ticker {
 		if isSuccess {
 			GetInAlert(routeID, stationID)
 			deleteGetIn(routeID, stationID)
 			stop()
 			break
 		}
-		time.Sleep(5 * time.Second)
 	}
 }
 
 func Observer(routeID string, stationID string) bool {
 	arrivalItem := GetBusArrivalOnlyOne(routeID, stationID)
-	if arrivalItem.PredictTime1 == 2 {
-		return true
-	}
-	return false
+	return arrivalItem.PredictTime1 == 2
 }
