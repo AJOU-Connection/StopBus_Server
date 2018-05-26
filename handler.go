@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/handlers"
@@ -102,11 +102,8 @@ func IndexHandler(w http.ResponseWriter, r *http.Request) {
 func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var di DriverInput
-	_ = json.Unmarshal(body, &di)
+	decodeJSON(r.Body, &di)
 
 	BISData := GetRouteStationList(di.RouteID)
 
@@ -126,11 +123,8 @@ func DriverRegisterHandler(w http.ResponseWriter, r *http.Request) {
 func DriverGapHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var gi GapInput
-	_ = json.Unmarshal(body, &gi)
+	decodeJSON(r.Body, &gi)
 
 	BISData := GetBusArrivalTime(gi.StationID)
 	var gapData interface{}
@@ -168,11 +162,8 @@ func DriverGapHandler(w http.ResponseWriter, r *http.Request) {
 func DriverStopHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var si StopInput
-	_ = json.Unmarshal(body, &si)
+	decodeJSON(r.Body, &si)
 
 	jsonBody := JSONBody{
 		Header{true, 0, ""},
@@ -222,11 +213,8 @@ func DriverStopHandler(w http.ResponseWriter, r *http.Request) {
 func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var user User
-	_ = json.Unmarshal(body, &user)
+	decodeJSON(r.Body, &user)
 
 	jsonBody := struct {
 		Header Header `json:"header"`
@@ -251,11 +239,8 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 func SearchHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var si SearchInput
-	_ = json.Unmarshal(body, &si)
+	decodeJSON(r.Body, &si)
 
 	header := Header{true, 0, ""}
 	var data interface{}
@@ -294,11 +279,8 @@ func SearchHandler(w http.ResponseWriter, r *http.Request) {
 func RouteInfoHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var orii OnlyRouteIDInput
-	_ = json.Unmarshal(body, &orii)
+	decodeJSON(r.Body, &orii)
 
 	header := Header{true, 0, ""}
 	var data interface{}
@@ -320,11 +302,8 @@ func RouteInfoHandler(w http.ResponseWriter, r *http.Request) {
 func BusStationListHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var orii OnlyRouteIDInput
-	_ = json.Unmarshal(body, &orii)
+	decodeJSON(r.Body, &orii)
 
 	header := Header{true, 0, ""}
 	var data interface{}
@@ -346,11 +325,8 @@ func BusStationListHandler(w http.ResponseWriter, r *http.Request) {
 func BusLocationListHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var orii OnlyRouteIDInput
-	_ = json.Unmarshal(body, &orii)
+	decodeJSON(r.Body, &orii)
 
 	header := Header{true, 0, ""}
 	var data interface{}
@@ -372,11 +348,8 @@ func BusLocationListHandler(w http.ResponseWriter, r *http.Request) {
 func BusArrivalHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var osni OnlyStationNumberInput
-	_ = json.Unmarshal(body, &osni)
+	decodeJSON(r.Body, &osni)
 
 	header := Header{true, 0, ""}
 	var data interface{}
@@ -398,11 +371,8 @@ func BusArrivalHandler(w http.ResponseWriter, r *http.Request) {
 func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	body, _ := ioutil.ReadAll(r.Body)
-	fmt.Println(string(body))
-
 	var reserv Reserv
-	_ = json.Unmarshal(body, &reserv)
+	decodeJSON(r.Body, &reserv)
 
 	jsonBody := struct {
 		Header Header `json:"header"`
@@ -472,3 +442,9 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 // 	w.Header().Set("Content-Type", "application/json")
 // 	fmt.Fprintln(w, string(jsonValue))
 // }
+
+func decodeJSON(r io.Reader, subject interface{}) {
+	if err := json.NewDecoder(r).Decode(subject); err != nil {
+		log.Fatalln(err)
+	}
+}
