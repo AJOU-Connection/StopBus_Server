@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"testing"
@@ -19,4 +20,12 @@ func TestAddGetIn(t *testing.T) {
 	if ret != nil {
 		log.Printf("expected %v; got %v\n", 1, ret)
 	}
+}
+
+func TestGetGetInUserTokens(t *testing.T) {
+	tokens, err := getGetInUserTokens("234000026", "203000066")
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	fmt.Println(tokens)
 }

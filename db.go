@@ -27,7 +27,7 @@ func addGetIn(r Reserv) error {
 	}
 	defer mysql.Close()
 
-	_, err = mysql.Exec("INSERT INTO GetIn VALUES (?, ?, ?)", r.UserToken, r.RouteID, r.StationID)
+	_, err = mysql.Exec("INSERT INTO GetIn VALUES (?, ?, ?)", r.UUID, r.RouteID, r.StationID)
 	if err != nil { // error exists
 		return err
 	}
@@ -46,6 +46,32 @@ func deleteGetIn(routeID string, stationID string) error {
 		return err
 	}
 	return nil
+}
+
+func getGetInUserTokens(routeID string, stationID string) ([]string, error) {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return nil, err
+	}
+	defer mysql.Close()
+
+	tokens := []string{}
+	var tempToken string
+	rows, err := mysql.Query("SELECT token FROM User INNER JOIN GetIn ON User.UUID = GetIn.UUID AND (routeID = ? AND stationID=?)", routeID, stationID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&tempToken)
+		if err != nil {
+			return nil, err
+		}
+		tokens = append(tokens, tempToken)
+	}
+
+	return tokens, nil
 }
 
 func getGetInCount(routeID string, stationID string) (int, error) {
