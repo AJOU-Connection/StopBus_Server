@@ -380,16 +380,8 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 		Header{true, 0, ""},
 	}
 
-	// routeID and stationID check
 	busList := GetBusArrivalList(reserv.StationID)
-	isInBusList := false
-	for _, bus := range busList {
-		if bus.RouteID == reserv.RouteID {
-			isInBusList = true
-			break
-		}
-	}
-	if !isInBusList {
+	if !isInBusList(reserv.RouteID, busList) {
 		jsonBody.Header.Result = false
 		jsonBody.Header.ErrorCode = 2
 		jsonBody.Header.ErrorContent = "Invalid bus routeID and stationID"
@@ -447,4 +439,15 @@ func decodeJSON(r io.Reader, subject interface{}) {
 	if err := json.NewDecoder(r).Decode(subject); err != nil {
 		log.Fatalln(err)
 	}
+}
+
+func isInBusList(routeID string, busList BusRouteList) bool {
+	ret := false
+	for _, bus := range busList {
+		if bus.RouteID == routeID {
+			ret = true
+			break
+		}
+	}
+	return ret
 }
