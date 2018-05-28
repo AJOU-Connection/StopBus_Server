@@ -13,7 +13,7 @@ func addUserToken(user User) error {
 	}
 	defer mysql.Close()
 
-	_, err = mysql.Exec("INSERT INTO User VALUES (?, ?, NOW())", user.Token, user.UUID)
+	_, err = mysql.Exec("INSERT INTO User VALUES (?,?,NOW()) ON DUPLICATE KEY UPDATE token=?, UUID=?, registration_date=NOW()", user.Token, user.UUID, user.Token, user.UUID)
 	if err != nil { // error exists
 		return err
 	}
