@@ -7,7 +7,7 @@ import (
 )
 
 // GetInAlert is a function
-func GetInAlert(routeID string, stationID string, tokens ...string) {
+func GetInAlert(routeID string, stationID string) {
 	data := map[string]string{
 		"routeID":   routeID,
 		"stationID": stationID,
@@ -16,6 +16,10 @@ func GetInAlert(routeID string, stationID string, tokens ...string) {
 	}
 
 	ids := []string{}
+	tokens, err := getGetInUserTokens(routeID, stationID)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	for _, token := range tokens {
 		ids = append(ids, token)
