@@ -62,7 +62,7 @@ type User struct {
 }
 
 type Reserv struct {
-	UserToken string `json:userToken`
+	UUID      string `json:UUID`
 	RouteID   string `json:routeID`
 	StationID string `json:stationID`
 }
