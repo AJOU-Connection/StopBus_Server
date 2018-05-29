@@ -224,7 +224,7 @@ type BusArrival struct {
 	RouteID        string   `xml:"routeId" json:"routeId"`
 	RouteNumber    string   `xml:"-" json:"routeNumber"`
 	RouteTypeName  string   `xml:"-" json:"routeTypeName"`
-	StaOrder       int      `xml:"staOrder" json:"-"`
+	StaOrder       int      `xml:"staOrder" json:"stationSeq"`
 }
 
 // ArrivalItemResponseBody is a structure that specifies the data format to be responsed from the API.
@@ -251,6 +251,23 @@ type BusArrivalItem struct {
 	PredictTime2 int    `xml:"predictTime2" json:"predictTime2"`
 }
 
+func GetGoingBusList(sourceStationID string, destiStationID string) BusRouteList {
+	sourceRouteList := GetBusArrivalList(sourceStationID)
+	destiRouteList := GetBusArrivalList(destiStationID)
+
+	resultRouteList := BusRouteList{}
+
+	for _, sourceRoute := range sourceRouteList {
+		for _, destiRoute := range destiRouteList {
+			if (sourceRoute.RouteID == destiRoute.RouteID) && (sourceRoute.StaOrder < destiRoute.StaOrder) {
+				resultRouteList = append(resultRouteList, sourceRoute)
+				break
+			}
+		}
+	}
+	return resultRouteList
+}
+
 // SearchForStation is a function that searches for bus station using keywords.
 func SearchForStation(keyword string) BusStationList {
 	URL := CommonURL + "/" + BusStationURLPath + "?serviceKey=" + config.ServiceKey + "&keyword=" + url.PathEscape(keyword)
@@ -260,7 +277,7 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	// ret := FillStationDirect(data.MsgBody.BusStationList)
+	FillStationDirect(data.MsgBody.BusStationList)
 
 	ret := data.MsgBody.BusStationList
 	return ret
