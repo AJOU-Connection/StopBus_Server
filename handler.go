@@ -374,28 +374,27 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 		jsonBody.Header.ErrorContent = "Invalid bus routeID and stationID"
 	} else {
 		data := GetBusArrivalOnlyOne(reserv.RouteID, reserv.StationID)
-		ret := addGetIn(reserv)
-		if ret != nil {
-			jsonBody.Header.Result = false
-			jsonBody.Header.ErrorCode = 1
-			jsonBody.Header.ErrorContent = "Failed to reserve get in"
-			goto END
+
+		isFirstInput, err := addDriverStop(StopInput{reserv.RouteID, reserv.StationID}, GetIn)
+		if err != nil {
+			log.Printf("%v\n", err)
+		} else if isFirstInput {
+			go isBusPassed(reserv.RouteID, reserv.StationID)
 		}
 
-		go func() {
-			ret, err := addDriverStop(StopInput{reserv.RouteID, reserv.StationID}, GetIn)
-			if err != nil {
-				log.Printf("%v\n", err)
-			} else if ret {
-				isBusPassed(reserv.RouteID, reserv.StationID)
-			}
-		}()
-
 		if data.PredictTime1 < 2 {
-			GetInAlert(reserv.RouteID, reserv.StationID)
-			deleteGetIn(reserv.RouteID, reserv.StationID)
+			go GetInAlertUsingUUID(reserv)
 		} else {
-			go TargetObserver(reserv.RouteID, reserv.StationID)
+			ret := addGetIn(reserv)
+			if ret != nil {
+				jsonBody.Header.Result = false
+				jsonBody.Header.ErrorCode = 1
+				jsonBody.Header.ErrorContent = "Failed to reserve get in"
+				goto END
+			}
+			if isFirstInput {
+				go TargetObserver(reserv.RouteID, reserv.StationID)
+			}
 		}
 	}
 
