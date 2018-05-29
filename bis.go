@@ -405,7 +405,7 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 		}
 		if !isDetected {
 			busArrivalList = append(busArrivalList, BusArrival{
-				xml.Name{}, 0, 0, 0, 0, "", "", 0, 0, 0, 0,
+				xml.Name{}, -1, -1, -1, -1, "", "", -1, -1, -1, -1,
 				bus.RouteID,
 				bus.RouteName,
 				bus.RouteTypeName,
