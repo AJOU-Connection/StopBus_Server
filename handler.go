@@ -62,9 +62,10 @@ type User struct {
 }
 
 type Reserv struct {
-	UUID      string `json:UUID`
-	RouteID   string `json:routeID`
-	StationID string `json:stationID`
+	UUID      string `json:"UUID"`
+	RouteID   string `json:"routeID"`
+	StationID string `json:"stationID"`
+	PlateNo   string `json:"plateNo"`
 }
 
 type GetInfo struct {
@@ -170,27 +171,13 @@ func DriverStopHandler(w http.ResponseWriter, r *http.Request) {
 		GetInfo{},
 	}
 
-	getInCnt, err := getGetInCount(si.RouteID, si.StationID)
+	getInfo, err := getGetCount(si.RouteID, si.StationID)
 	if err != nil {
 		jsonBody.Header.Result = false
 		jsonBody.Header.ErrorCode = 1
-		jsonBody.Header.ErrorContent = "Failed to select GetIn count"
+		jsonBody.Header.ErrorContent = "Failed to select DriverStop count"
 	} else {
-		getOutCnt, err := getGetOutCount(si.RouteID, si.StationID)
-		if err != nil {
-			jsonBody.Header.Result = false
-			jsonBody.Header.ErrorCode = 2
-			jsonBody.Header.ErrorContent = "Failed to select GetOut count"
-		} else {
-			getInfo := GetInfo{}
-			if getInCnt != 0 {
-				getInfo.IsGetIn = true
-			}
-			if getOutCnt != 0 {
-				getInfo.IsGetOff = true
-			}
-			jsonBody.Body = getInfo
-		}
+		jsonBody.Body = getInfo
 	}
 
 	var jsonValue []byte
@@ -386,21 +373,33 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 		jsonBody.Header.ErrorCode = 2
 		jsonBody.Header.ErrorContent = "Invalid bus routeID and stationID"
 	} else {
-		// 2분 이내라면 즉시 알람
 		data := GetBusArrivalOnlyOne(reserv.RouteID, reserv.StationID)
-		if data.PredictTime1 < 2 {
-			GetInAlert(reserv.RouteID, reserv.StationID)
-		} else { // 아니라면 DB에 추가하고, Scheduler에 추가하기
-			ret := addGetIn(reserv)
-			go TargetObserver(reserv.RouteID, reserv.StationID)
-			if ret != nil {
-				jsonBody.Header.Result = false
-				jsonBody.Header.ErrorCode = 1
-				jsonBody.Header.ErrorContent = "Failed to reserve get in"
-			}
+		ret := addGetIn(reserv)
+		if ret != nil {
+			jsonBody.Header.Result = false
+			jsonBody.Header.ErrorCode = 1
+			jsonBody.Header.ErrorContent = "Failed to reserve get in"
+			goto END
 		}
 
+		go func() {
+			ret, err := addDriverStop(StopInput{reserv.RouteID, reserv.StationID}, GetIn)
+			if err != nil {
+				log.Printf("%v\n", err)
+			} else if ret {
+				isBusPassed(reserv.RouteID, reserv.StationID)
+			}
+		}()
+
+		if data.PredictTime1 < 2 {
+			GetInAlert(reserv.RouteID, reserv.StationID)
+			deleteGetIn(reserv.RouteID, reserv.StationID)
+		} else {
+			go TargetObserver(reserv.RouteID, reserv.StationID)
+		}
 	}
+
+END:
 	jsonValue, _ := json.Marshal(jsonBody)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -410,11 +409,8 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 // func ReservGetOutHandler(w http.ResponseWriter, r *http.Request) {
 // 	defer r.Body.Close()
 
-// 	body, _ := ioutil.ReadAll(r.Body)
-// 	fmt.Println(string(body))
-
 // 	var reserv Reserv
-// 	_ = json.Unmarshal(body, &reserv)
+// 	decodeJSON(r.Body, &reserv)
 
 // 	jsonBody := struct {
 // 		Header Header `json:"header"`
