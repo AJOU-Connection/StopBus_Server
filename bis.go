@@ -260,8 +260,9 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	ret := FillStationDirect(data.MsgBody.BusStationList)
+	// ret := FillStationDirect(data.MsgBody.BusStationList)
 
+	ret := data.MsgBody.BusStationList
 	return ret
 }
 
