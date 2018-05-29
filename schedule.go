@@ -1,10 +1,38 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/aubm/interval"
 )
+
+func isBusPassed(routeID string, stationID string) {
+	var prePlateNo, currentPlateNo string
+
+	stop := interval.Start(func() {
+		currentPlateNo = getFirstPlateNo(routeID, stationID)
+	}, 10*time.Second)
+
+	ticker := time.Tick(5 * time.Second)
+	for range ticker {
+		if prePlateNo == "" {
+			prePlateNo = currentPlateNo
+			continue
+		}
+
+		if prePlateNo != currentPlateNo {
+			deleteDriverStop(routeID, stationID)
+			fmt.Println("isBusPassed end")
+			stop()
+			break
+		}
+	}
+}
+
+func getFirstPlateNo(routeID string, stationID string) string {
+	return GetBusArrivalOnlyOne(routeID, stationID).PlateNo1
+}
 
 func TargetObserver(routeID string, stationID string) {
 	isSuccess := false
