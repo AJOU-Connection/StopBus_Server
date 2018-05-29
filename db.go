@@ -6,6 +6,13 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+type GetType int
+
+const (
+	GetIn  GetType = 1
+	GetOff GetType = 2
+)
+
 func addUserToken(user User) error {
 	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
@@ -18,6 +25,39 @@ func addUserToken(user User) error {
 		return err
 	}
 	return nil
+}
+
+func addDriverStop(stopInput StopInput, getType GetType) (bool, error) {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return false, err
+	}
+	defer mysql.Close()
+
+	var gt string
+	var getInfo GetInfo
+	if getType == GetIn {
+		gt = "getIn"
+		getInfo.IsGetIn = true
+	} else {
+		gt = "getOut"
+		getInfo.IsGetOff = true
+	}
+
+	rows, err := mysql.Exec("INSERT INTO DriverStop VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE "+gt+"=?", stopInput.RouteID, stopInput.StationID, getInfo.IsGetIn, getInfo.IsGetOff, true)
+	if err != nil { // error exists
+		return false, err
+	}
+
+	n, err := rows.RowsAffected()
+	if err != nil { // error exists
+		return false, err
+	}
+	if n == 1 {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func addGetIn(r Reserv) error {
@@ -42,6 +82,20 @@ func deleteGetIn(routeID string, stationID string) error {
 	defer mysql.Close()
 
 	_, err = mysql.Exec("DELETE FROM GetIn WHERE routeID = ? AND stationID = ?", routeID, stationID)
+	if err != nil { // error exists
+		return err
+	}
+	return nil
+}
+
+func deleteDriverStop(routeID string, stationID string) error {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return err
+	}
+	defer mysql.Close()
+
+	_, err = mysql.Exec("DELETE FROM DriverStop WHERE routeID = ? AND stationID = ?", routeID, stationID)
 	if err != nil { // error exists
 		return err
 	}
@@ -74,34 +128,19 @@ func getGetInUserTokens(routeID string, stationID string) ([]string, error) {
 	return tokens, nil
 }
 
-func getGetInCount(routeID string, stationID string) (int, error) {
+func getGetCount(routeID string, stationID string) (GetInfo, error) {
+	var getInfo GetInfo
+
 	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
-		return -1, err
+		return getInfo, err
 	}
 	defer mysql.Close()
 
-	var getInCount int
-	err = mysql.QueryRow("SELECT COUNT(*) FROM GetIn WHERE routeID=? AND stationID=?", routeID, stationID).Scan(&getInCount)
+	err = mysql.QueryRow("SELECT getIn, getOut FROM DriverStop WHERE routeID=? AND stationID=?", routeID, stationID).Scan(&getInfo.IsGetIn, &getInfo.IsGetOff)
 	if err != nil {
-		return -1, err
+		return getInfo, err
 	}
 
-	return getInCount, nil
-}
-
-func getGetOutCount(routeID string, stationID string) (int, error) {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
-	if err != nil { // error exists
-		return -1, err
-	}
-	defer mysql.Close()
-
-	var getOutCount int
-	err = mysql.QueryRow("SELECT COUNT(*) FROM GetOut WHERE routeID=? AND stationID=?", routeID, stationID).Scan(&getOutCount)
-	if err != nil {
-		return -1, err
-	}
-
-	return getOutCount, nil
+	return getInfo, nil
 }
