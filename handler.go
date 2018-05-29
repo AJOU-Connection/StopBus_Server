@@ -73,6 +73,11 @@ type GetInfo struct {
 	IsGetOff bool `json:"isGetOff"`
 }
 
+type IsGoInfo struct {
+	SourceStationID string `json:"sourceStationID"`
+	DestiStationID  string `json:"destiStationID"`
+}
+
 // Handler is a function that handles the entire routing in the server.
 func Handler() http.Handler {
 	r := mux.NewRouter()
@@ -89,6 +94,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/user/busArrival", PostOnly(BusArrivalHandler))
 	r.HandleFunc("/user/reserv/getIn", PostOnly(ReservGetInHandler))
 	r.HandleFunc("/user/reserv/getOut", PostOnly(ReservGetInHandler))
+	r.HandleFunc("/user/isgo", PostOnly(IsGoHandler))
 
 	loggedRouter := handlers.LoggingHandler(io.Writer(GetLogFile()), r)
 	return loggedRouter
@@ -429,6 +435,28 @@ END:
 // 	w.Header().Set("Content-Type", "application/json")
 // 	fmt.Fprintln(w, string(jsonValue))
 // }
+
+func IsGoHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var isgo IsGoInfo
+	decodeJSON(r.Body, &isgo)
+
+	header := Header{true, 0, ""}
+	var data interface{}
+
+	data = GetGoingBusList(isgo.SourceStationID, isgo.DestiStationID)
+
+	jsonBody := JSONBody{
+		header,
+		data,
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
 
 func decodeJSON(r io.Reader, subject interface{}) {
 	if err := json.NewDecoder(r).Decode(subject); err != nil {
