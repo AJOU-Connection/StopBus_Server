@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"testing"
@@ -22,10 +21,10 @@ func TestAddGetIn(t *testing.T) {
 	}
 }
 
-func TestGetGetInUserTokens(t *testing.T) {
-	tokens, err := getGetInUserTokens("234000026", "203000066")
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-	fmt.Println(tokens)
-}
+// func TestGetInUserTokens(t *testing.T) {
+// 	tokens, err := getGetInUserTokens("234000026", "203000066")
+// 	if err != nil {
+// 		t.Fatalf("%v", err)
+// 	}
+// 	fmt.Println(tokens)
+// }
