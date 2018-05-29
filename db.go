@@ -102,6 +102,22 @@ func deleteDriverStop(routeID string, stationID string) error {
 	return nil
 }
 
+func getTokenFromUUID(UUID string) (string, error) {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return "", err
+	}
+	defer mysql.Close()
+
+	var token string
+	err = mysql.QueryRow("SELECT token FROM User WHERE UUID=?", UUID).Scan(&token)
+	if err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
 func getGetInUserTokens(routeID string, stationID string) ([]string, error) {
 	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
