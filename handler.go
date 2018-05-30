@@ -95,6 +95,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/user/reserv/getIn", PostOnly(ReservGetInHandler))
 	r.HandleFunc("/user/reserv/getOut", PostOnly(ReservGetInHandler))
 	r.HandleFunc("/user/isgo", PostOnly(IsGoHandler))
+	r.HandleFunc("/user/reserv/panel", PostOnly(ReservPanelHandler))
 
 	loggedRouter := handlers.LoggingHandler(io.Writer(GetLogFile()), r)
 	return loggedRouter
@@ -383,7 +384,11 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 
 		isFirstInput, err := addDriverStop(StopInput{reserv.RouteID, reserv.StationID}, GetIn)
 		if err != nil {
-			log.Printf("%v\n", err)
+			fmt.Println(err)
+			jsonBody.Header.Result = false
+			jsonBody.Header.ErrorCode = 3
+			jsonBody.Header.ErrorContent = "Failed to reserve get in"
+			goto END
 		} else if isFirstInput {
 			go isBusPassed(reserv.RouteID, reserv.StationID)
 		}
@@ -452,6 +457,34 @@ func IsGoHandler(w http.ResponseWriter, r *http.Request) {
 		data,
 	}
 
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+func ReservPanelHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var reserv Reserv
+	decodeJSON(r.Body, &reserv)
+
+	jsonBody := struct {
+		Header Header `json:"header"`
+	}{
+		Header{true, 0, ""},
+	}
+
+	isFirstInput, err := addDriverStop(StopInput{reserv.RouteID, reserv.StationID}, GetIn)
+	if err != nil {
+		jsonBody.Header.Result = false
+		jsonBody.Header.ErrorCode = 1
+		jsonBody.Header.ErrorContent = "Failed to reserve get in at panel"
+		log.Printf("%v\n", err)
+	} else if isFirstInput {
+		go isBusPassed(reserv.RouteID, reserv.StationID)
+	}
+	
 	jsonValue, _ := json.Marshal(jsonBody)
 
 	w.Header().Set("Content-Type", "application/json")
