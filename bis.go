@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -277,7 +278,7 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	// FillStationDirect(data.MsgBody.BusStationList)
+	FillStationDirect(data.MsgBody.BusStationList)
 
 	ret := data.MsgBody.BusStationList
 	return ret
@@ -437,30 +438,39 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 
 // FillStationDirect is a function that fills the station directs of BusStationList
 func FillStationDirect(busStationList BusStationList) BusStationList {
-	var wg sync.WaitGroup
+	var wait sync.WaitGroup
 
 	for i := 0; i < len(busStationList); i++ {
-		wg.Add(1)
+		if busStationList[i].MobileNo == "00000" {
+			continue
+		}
+
+		wait.Add(1)
 		go func(j int) {
-			busStationList[j].StationDirect = GetStationDirect(&wg, busStationList[j].StationID)
+			defer wait.Done()
+			busStationList[j].StationDirect = GetStationDirect(busStationList[j].StationID)
 		}(i)
 	}
 
-	wg.Wait()
+	wait.Wait()
 	return busStationList
 }
 
 // GetStationDirect is a function that get stationDirect from a stationID
-func GetStationDirect(wg *sync.WaitGroup, stationID string) (stationDirect string) {
-	defer wg.Done()
+func GetStationDirect(stationID string) (stationDirect string) {
+	direct := getStaDirect(stationID)
+	if direct != "" {
+		return direct
+	}
 
-	busRouteList := GetBusArrivalList(stationID)
-	returnList := []string{}
 	directCount := map[string]int{}
+	busRouteList := GetBusArrivalList(stationID)
 
 	for i := 0; i < len(busRouteList); i++ {
 		busRouteStationList := GetRouteStationList(busRouteList[i].RouteID)
-		returnList = append(returnList, busRouteStationList[busRouteList[i].StaOrder].StationName)
+		if busRouteList[i].StaOrder >= len(busRouteStationList){
+			continue;
+		}
 		directCount[busRouteStationList[busRouteList[i].StaOrder].StationName]++
 	}
 
@@ -470,6 +480,14 @@ func GetStationDirect(wg *sync.WaitGroup, stationID string) (stationDirect strin
 			max = cnt
 			stationDirect = k
 		}
+	}
+
+	if stationDirect == "" {
+		return
+	}
+	err := addStaDirect(stationID, stationDirect)
+	if err != nil {
+		log.Fatalf("%v\n", err)
 	}
 
 	return stationDirect

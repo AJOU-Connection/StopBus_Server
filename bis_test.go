@@ -1,10 +1,10 @@
 package main
 
 import (
+	"encoding/xml"
 	"fmt"
 	"net/http"
 	"strings"
-	"sync"
 	"testing"
 )
 
@@ -23,11 +23,14 @@ func TestSearchForStation(t *testing.T) {
 		status     int
 		resultCode int
 	}{
-		{"아주대학교입구", http.StatusOK, 0},
+		{"아주", http.StatusOK, 0},
+		{"경기", http.StatusOK, 0},
+		{"팔달", http.StatusOK, 0},
+		{"수원", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := SearchForStation(tc.keyword)
-		fmt.Println(resultData)
+		SearchForStation(tc.keyword)
+		// fmt.Println(resultData)
 	}
 }
 
@@ -186,18 +189,16 @@ func TestGetBusArrivalList(t *testing.T) {
 	}
 }
 
-// func TestFillStationDirect(t *testing.T) {
-// 	testBusStationList := BusStationList{
-// 		BusStation{xml.Name{"busStationList", "busStationList"}, "N", 2, "03129", "수원", "202000004", "아주대학교입구", 127.04377, 37.275715, ""},
-// 		BusStation{xml.Name{"busStationList", "busStationList"}, "N", 2, "04238", "수원", "203000067", "아주대학교입구", 127.044136, 37.27603, ""},
-// 	}
-// 	ret := FillStationDirect(testBusStationList)
-// 	fmt.Println(ret)
-// }
+func TestFillStationDirect(t *testing.T) {
+	testBusStationList := BusStationList{
+		BusStation{xml.Name{"busStationList", "busStationList"}, "N", 2, "03129", "수원", "202000004", "아주대학교입구", 127.04377, 37.275715, ""},
+		BusStation{xml.Name{"busStationList", "busStationList"}, "N", 2, "04238", "수원", "203000067", "아주대학교입구", 127.044136, 37.27603, ""},
+	}
+	ret := FillStationDirect(testBusStationList)
+	fmt.Println(ret)
+}
 
 func TestGetStationDirect(t *testing.T) {
-	var wg sync.WaitGroup
-
 	tt := []struct {
 		stationID string
 	}{
@@ -205,12 +206,9 @@ func TestGetStationDirect(t *testing.T) {
 		// {"203000067"},
 	}
 	for _, tc := range tt {
-		wg.Add(1)
-		go func() {
-			_ = GetStationDirect(&wg, tc.stationID)
-		}()
+		ret := GetStationDirect(tc.stationID)
+		fmt.Println(ret)
 	}
-	wg.Wait()
 }
 
 func TestGetDataFromAPI(t *testing.T) {
