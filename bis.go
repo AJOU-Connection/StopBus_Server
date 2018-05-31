@@ -147,18 +147,18 @@ type RouteInfoMsgBody struct {
 // BusRouteInfoItem is a structure that specifies the data format of the bus route information in the MsgBody.
 type BusRouteInfoItem struct {
 	XMLName          xml.Name `xml:"busRouteInfoItem" json:"-"`
-	DistrictCd       int      `xml:"districtCd" json:"districtCd"`
+	DistrictCd       int      `xml:"districtCd" json:"-"`
 	DownFirstTime    string   `xml:"downFirstTime" json:"downFirstTime"`
 	DownLastTime     string   `xml:"downLastTime" json:"downLastTime"`
-	EndMobileNo      string   `xml:"endMobileNo" json:"endStationNumber"`
-	EndStationID     string   `xml:"endStationId" json:"endStationID"`
+	EndMobileNo      string   `xml:"endMobileNo" json:"-"`
+	EndStationID     string   `xml:"endStationId" json:"-"`
 	EndStationName   string   `xml:"endStationName" json:"endStationName"`
 	RegionName       string   `xml:"regionName" json:"regionName"`
-	RouteID          string   `xml:"routeId" json:"routeID"`
+	RouteID          string   `xml:"routeId" json:"-"`
 	RouteName        string   `xml:"routeName" json:"routeNumber"`
 	RouteTypeName    string   `xml:"routeTypeName" json:"routeTypeName"`
-	StartMobileNo    string   `xml:"startMobileNo" json:"startStationNumber"`
-	StartStationID   string   `xml:"startStationId" json:"startStationID"`
+	StartMobileNo    string   `xml:"startMobileNo" json:"-"`
+	StartStationID   string   `xml:"startStationId" json:"-"`
 	StartStationName string   `xml:"startStationName" json:"startStationName"`
 	UpFirstTime      string   `xml:"upFirstTime" json:"upFirstTime"`
 	UpLastTime       string   `xml:"upLastTime" json:"upLastTime"`
@@ -278,9 +278,7 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	FillStationDirect(data.MsgBody.BusStationList)
-
-	ret := data.MsgBody.BusStationList
+	ret := FillStationDirect(data.MsgBody.BusStationList)
 	return ret
 }
 
@@ -438,21 +436,18 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 
 // FillStationDirect is a function that fills the station directs of BusStationList
 func FillStationDirect(busStationList BusStationList) BusStationList {
-	var wait sync.WaitGroup
+	var wg sync.WaitGroup
 
-	for i := 0; i < len(busStationList); i++ {
-		if busStationList[i].MobileNo == "00000" {
-			continue
-		}
-
-		wait.Add(1)
-		go func(j int) {
-			defer wait.Done()
+	length := len(busStationList)
+	for i := 0; i < length; i++ {
+		wg.Add(1)
+		go func(j int, wg *sync.WaitGroup) {
 			busStationList[j].StationDirect = GetStationDirect(busStationList[j].StationID)
-		}(i)
+			wg.Done()
+		}(i, &wg)
 	}
 
-	wait.Wait()
+	wg.Wait()
 	return busStationList
 }
 
@@ -463,28 +458,31 @@ func GetStationDirect(stationID string) (stationDirect string) {
 		return direct
 	}
 
-	directCount := map[string]int{}
+	directCount := make(map[string]int)
 	busRouteList := GetBusArrivalList(stationID)
+
+	if len(busRouteList) == 0 {
+		return
+	}
 
 	for i := 0; i < len(busRouteList); i++ {
 		busRouteStationList := GetRouteStationList(busRouteList[i].RouteID)
-		if busRouteList[i].StaOrder >= len(busRouteStationList){
-			continue;
+		if busRouteList[i].StaOrder == len(busRouteStationList) {
+			direct = "종점"
+		} else {
+			direct = busRouteStationList[busRouteList[i].StaOrder].StationName
 		}
-		directCount[busRouteStationList[busRouteList[i].StaOrder].StationName]++
+		directCount[direct]++
 	}
 
 	max := -1
-	for k, cnt := range directCount {
+	for direct, cnt := range directCount {
 		if max < cnt {
 			max = cnt
-			stationDirect = k
+			stationDirect = direct
 		}
 	}
 
-	if stationDirect == "" {
-		return
-	}
 	err := addStaDirect(stationID, stationDirect)
 	if err != nil {
 		log.Fatalf("%v\n", err)

@@ -23,14 +23,18 @@ func TestSearchForStation(t *testing.T) {
 		status     int
 		resultCode int
 	}{
-		{"아주", http.StatusOK, 0},
-		{"경기", http.StatusOK, 0},
-		{"팔달", http.StatusOK, 0},
-		{"수원", http.StatusOK, 0},
+		// {"운동장", http.StatusOK, 0},
+		{"센터", http.StatusOK, 0},
+		// {"마을", http.StatusOK, 0},
+		// {"병원", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
 		SearchForStation(tc.keyword)
-		// fmt.Println(resultData)
+		// resultData := SearchForStation(tc.keyword)
+		// fmt.Println(len(resultData))
+		// for _, rd := range resultData {
+		// 	fmt.Println(rd.StationDirect)
+		// }
 	}
 }
 
@@ -205,6 +209,7 @@ func TestGetStationDirect(t *testing.T) {
 		{"202000004"},
 		// {"203000067"},
 	}
+
 	for _, tc := range tt {
 		ret := GetStationDirect(tc.stationID)
 		fmt.Println(ret)
