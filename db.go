@@ -118,6 +118,36 @@ func getTokenFromUUID(UUID string) (string, error) {
 	return token, nil
 }
 
+func addStaDirect(stationID string, direct string) error {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return err
+	}
+	defer mysql.Close()
+
+	_, err = mysql.Exec("INSERT INTO StationDirect VALUES (?,?) ON DUPLICATE KEY UPDATE direct=?", stationID, direct, direct)
+	if err != nil { // error exists
+		return err
+	}
+	return nil
+}
+
+func getStaDirect(stationID string) string {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return ""
+	}
+	defer mysql.Close()
+
+	var direct string
+	err = mysql.QueryRow("SELECT direct FROM StationDirect WHERE stationID=?", stationID).Scan(&direct)
+	if err != nil {
+		return ""
+	}
+
+	return direct
+}
+
 func getGetInUserTokens(routeID string, stationID string) ([]string, error) {
 	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
