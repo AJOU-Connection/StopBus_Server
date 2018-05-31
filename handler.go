@@ -382,6 +382,9 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		data := GetBusArrivalOnlyOne(reserv.RouteID, reserv.StationID)
 
+		if data.PlateNo1 == "" {
+			goto END
+		}
 		isFirstInput, err := addDriverStop(StopInput{reserv.RouteID, reserv.StationID}, GetIn)
 		if err != nil {
 			fmt.Println(err)
@@ -484,7 +487,7 @@ func ReservPanelHandler(w http.ResponseWriter, r *http.Request) {
 	} else if isFirstInput {
 		go isBusPassed(reserv.RouteID, reserv.StationID)
 	}
-	
+
 	jsonValue, _ := json.Marshal(jsonBody)
 
 	w.Header().Set("Content-Type", "application/json")
