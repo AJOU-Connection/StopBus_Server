@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -78,6 +79,10 @@ type IsGoInfo struct {
 	DestiStationID  string `json:"destiStationID"`
 }
 
+type StarInfo struct {
+	RouteIDList []string `json:"routeIDList"`
+}
+
 // Handler is a function that handles the entire routing in the server.
 func Handler() http.Handler {
 	r := mux.NewRouter()
@@ -88,6 +93,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/driver/stop", PostOnly(DriverStopHandler))
 	r.HandleFunc("/user/register", PostOnly(UserRegisterHandler))
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
+	r.HandleFunc("/user/starInfo", PostOnly(StarInfoHandler))
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
 	r.HandleFunc("/user/busLocationList", PostOnly(BusLocationListHandler))
 	r.HandleFunc("/user/busStationList", PostOnly(BusStationListHandler))
@@ -221,6 +227,39 @@ func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		jsonBody.Header.Result = false
 		jsonBody.Header.ErrorCode = 1
 		jsonBody.Header.ErrorContent = "Failed to add user"
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+func StarInfoHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var starInfo StarInfo
+	decodeJSON(r.Body, &starInfo)
+
+	header := Header{true, 0, ""}
+	data := []BusRouteInfoItem{}
+
+	var wg sync.WaitGroup
+	for _, routeID := range starInfo.RouteIDList {
+		wg.Add(1)
+
+		go func(routeID string, wg *sync.WaitGroup) {
+			defer wg.Done()
+			fmt.Println(routeID)
+			info := GetRouteInfo(routeID)
+			data = append(data, info)
+		}(routeID, &wg)
+	}
+	wg.Wait()
+
+	jsonBody := JSONBody{
+		header,
+		data,
 	}
 
 	jsonValue, _ := json.Marshal(jsonBody)
