@@ -46,8 +46,8 @@ func TestGetGetCount(t *testing.T) {
 // 	fmt.Println(tokens)
 // }
 
-func TestGetStaDirect(t *testing.T) {
-	direct:= getStaDirect("TEST2")
+// func TestGetStaDirect(t *testing.T) {
+// 	direct:= getStaDirect("TEST2")
 
-	fmt.Println(direct)
-}
+// 	fmt.Println(direct)
+// }

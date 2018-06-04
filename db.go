@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -74,6 +75,20 @@ func addGetIn(r Reserv) error {
 	return nil
 }
 
+func addGetOut(r Reserv) error {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return err
+	}
+	defer mysql.Close()
+
+	_, err = mysql.Exec("INSERT INTO GetOut VALUES (?, ?, ?)", r.UUID, r.RouteID, r.StationID, r.PlateNo)
+	if err != nil { // error exists
+		return err
+	}
+	return nil
+}
+
 func deleteGetIn(routeID string, stationID string) error {
 	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
@@ -82,6 +97,20 @@ func deleteGetIn(routeID string, stationID string) error {
 	defer mysql.Close()
 
 	_, err = mysql.Exec("DELETE FROM GetIn WHERE routeID = ? AND stationID = ?", routeID, stationID)
+	if err != nil { // error exists
+		return err
+	}
+	return nil
+}
+
+func deleteGetOut(routeID string, stationID string, plateNo string) error {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return err
+	}
+	defer mysql.Close()
+
+	_, err = mysql.Exec("DELETE FROM GetIn WHERE routeID = ? AND stationID = ? AND plateNo = ?", routeID, stationID, plateNo)
 	if err != nil { // error exists
 		return err
 	}
@@ -134,15 +163,23 @@ func addStaDirect(stationID string, direct string) error {
 
 func getStaDirect(stationID string) string {
 	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+
+	mysql.SetConnMaxLifetime(time.Second * 5)
+
+	var direct string
 	if err != nil { // error exists
-		return ""
+		ErrorLogger(err)
+		direct = ""
 	}
 	defer mysql.Close()
 
-	var direct string
 	err = mysql.QueryRow("SELECT direct FROM StationDirect WHERE stationID=?", stationID).Scan(&direct)
 	if err != nil {
-		return ""
+		if err == sql.ErrNoRows {
+			direct = ""
+		} else {
+			ErrorLogger(err)
+		}
 	}
 
 	return direct
