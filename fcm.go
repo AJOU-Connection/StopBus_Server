@@ -19,6 +19,17 @@ func GetInAlert(routeID string, stationID string) {
 	fcmAlert(routeID, stationID, title, message, tokens)
 }
 
+func GetOutAlert(routeID string, stationID string, plateNo string) {
+	tokens, err := getGetOutUserTokens(routeID, stationID, plateNo)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	title := "하차알림"
+	message := fmt.Sprintf("%v번 버스가 곧 %v에 도착합니다.", GetRouteNameFromRouteID(routeID), GetStationNameFromStationID(routeID, stationID))
+	fcmAlert(routeID, stationID, title, message, tokens)
+}
+
 func GetInAlertUsingUUID(reserv Reserv) {
 	title := "승차알림"
 	message := fmt.Sprintf("[%v] %v번 버스가 곧 도착합니다.", GetStationNameFromStationID(reserv.RouteID, reserv.StationID), GetRouteNameFromRouteID(reserv.RouteID))
