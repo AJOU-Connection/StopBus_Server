@@ -211,6 +211,32 @@ func getGetInUserTokens(routeID string, stationID string) ([]string, error) {
 	return tokens, nil
 }
 
+func getGetOutUserTokens(routeID string, stationID string, plateNo string) ([]string, error) {
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	if err != nil { // error exists
+		return nil, err
+	}
+	defer mysql.Close()
+
+	tokens := []string{}
+	var tempToken string
+	rows, err := mysql.Query("SELECT token FROM User INNER JOIN GetOut ON User.UUID = GetOut.UUID AND (routeID = ? AND stationID=? AND plateNo=?)", routeID, stationID, plateNo)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		err := rows.Scan(&tempToken)
+		if err != nil {
+			return nil, err
+		}
+		tokens = append(tokens, tempToken)
+	}
+
+	return tokens, nil
+}
+
 func getGetCount(routeID string, stationID string) (GetInfo, error) {
 	var getInfo GetInfo
 
