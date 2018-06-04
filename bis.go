@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 	"errors"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -278,7 +277,9 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	ret := FillStationDirect(data.MsgBody.BusStationList)
+	// ret := FillStationDirect(data.MsgBody.BusStationList)
+	ret := data.MsgBody.BusStationList
+
 	return ret
 }
 
@@ -453,39 +454,28 @@ func FillStationDirect(busStationList BusStationList) BusStationList {
 
 // GetStationDirect is a function that get stationDirect from a stationID
 func GetStationDirect(stationID string) (stationDirect string) {
-	direct := getStaDirect(stationID)
-	if direct != "" {
-		return direct
-	}
-
-	directCount := make(map[string]int)
-	busRouteList := GetBusArrivalList(stationID)
-
-	if len(busRouteList) == 0 {
+	if direct := getStaDirect(stationID); direct != "" {
+		stationDirect = direct
 		return
 	}
 
-	for i := 0; i < len(busRouteList); i++ {
-		busRouteStationList := GetRouteStationList(busRouteList[i].RouteID)
-		if busRouteList[i].StaOrder == len(busRouteStationList) {
-			direct = "종점"
-		} else {
-			direct = busRouteStationList[busRouteList[i].StaOrder].StationName
-		}
-		directCount[direct]++
+	busRouteList := GetBusArrivalList(stationID)
+
+	if len(busRouteList) == 0 {
+		return ""
 	}
 
-	max := -1
-	for direct, cnt := range directCount {
-		if max < cnt {
-			max = cnt
-			stationDirect = direct
-		}
+	busRouteStationList := GetRouteStationList(busRouteList[0].RouteID)
+	length := len(busRouteStationList)
+	if busRouteList[0].StaOrder == length {
+		stationDirect = "종점"
+	} else {
+		stationDirect = busRouteStationList[busRouteList[0].StaOrder].StationName
 	}
 
 	err := addStaDirect(stationID, stationDirect)
 	if err != nil {
-		log.Fatalf("%v\n", err)
+		ErrorLogger(err)
 	}
 
 	return stationDirect
