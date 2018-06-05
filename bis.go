@@ -221,7 +221,7 @@ type BusArrival struct {
 	PredictTime2   int      `xml:"predictTime2" json:"predictTime2"`
 	RemainSeatCnt1 int      `xml:"remainSeatCnt1" json:"remainSeatCnt1"`
 	RemainSeatCnt2 int      `xml:"remainSeatCnt2" json:"remainSeatCnt2"`
-	RouteID        string   `xml:"routeId" json:"routeId"`
+	RouteID        string   `xml:"routeId" json:"routeID"`
 	RouteNumber    string   `xml:"-" json:"routeNumber"`
 	RouteTypeName  string   `xml:"-" json:"routeTypeName"`
 	StaOrder       int      `xml:"staOrder" json:"stationSeq"`
