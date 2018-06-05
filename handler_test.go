@@ -366,20 +366,14 @@ func TestBusStationListHandler(t *testing.T) {
 
 func TestBusArrivalHandler(t *testing.T) {
 	tt := []struct {
-		districtCd     int
-		stationNumber  string
+		stationID  string
 		httpStatusCode int
 	}{
-		{2, "04237", http.StatusOK},
-		{2, "03126", http.StatusOK},
-		{2, "03124", http.StatusOK},
-		{2, "03117", http.StatusOK},
-		{2, "03105", http.StatusOK},
-		{2, "03247", http.StatusOK},
+		{"203000066", http.StatusOK},
 	}
 
 	for _, tc := range tt {
-		rawBody := OnlyStationNumberInput{tc.districtCd, tc.stationNumber}
+		rawBody := OnlyStationIDInput{tc.stationID}
 
 		jsonBody, err := json.Marshal(rawBody)
 		if err != nil {

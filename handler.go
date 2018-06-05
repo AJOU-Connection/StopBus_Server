@@ -53,9 +53,8 @@ type OnlyRouteIDInput struct {
 	RouteID string `json:"routeID"`
 }
 
-type OnlyStationNumberInput struct {
-	DistrictCd    int    `json:"districtCd"`
-	StationNumber string `json:"stationNumber"`
+type OnlyStationIDInput struct {
+	StationID string `json:"stationID"`
 }
 type User struct {
 	Token string `json:"token"`
@@ -381,14 +380,13 @@ func BusLocationListHandler(w http.ResponseWriter, r *http.Request) {
 func BusArrivalHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	var osni OnlyStationNumberInput
-	decodeJSON(r.Body, &osni)
+	var osii OnlyStationIDInput
+	decodeJSON(r.Body, &osii)
 
 	header := Header{true, 0, ""}
 	var data interface{}
 
-	stationID := GetStationIDFromStationNumber(osni.DistrictCd, osni.StationNumber)
-	data = GetBusArrivalTime(stationID)
+	data = GetBusArrivalTime(osii.StationID)
 
 	jsonBody := JSONBody{
 		header,
