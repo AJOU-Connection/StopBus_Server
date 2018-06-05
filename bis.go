@@ -249,6 +249,7 @@ type BusArrivalItem struct {
 	PlateNo2     string `xml:"plateNo2" json:"plateNo2"`
 	PredictTime1 int    `xml:"predictTime1" json:"predictTime1"`
 	PredictTime2 int    `xml:"predictTime2" json:"predictTime2"`
+	StaOrder     int    `xml:"staOrder" json:"-"`
 }
 
 func GetGoingBusList(sourceStationID string, destiStationID string) BusRouteList {
