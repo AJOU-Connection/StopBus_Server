@@ -7,6 +7,31 @@ import (
 	"github.com/aubm/interval"
 )
 
+func isTargetBusPassed(routeID string, stationID string, plateNo string) {
+	var currentPlateNo string
+
+	if currentPlateNo = getFirstPlateNo(routeID, stationID); currentPlateNo == plateNo {
+		addDriverStop(StopInput{routeID, stationID}, GetOff)
+		isBusPassed(routeID, stationID)
+		deleteGetOut(routeID, stationID, plateNo)
+		return
+	}
+
+	stop := interval.Start(func() {
+		currentPlateNo = getFirstPlateNo(routeID, stationID)
+	}, 10*time.Second)
+
+	ticker := time.Tick(5 * time.Second)
+	for range ticker {
+		if currentPlateNo == plateNo {
+			addDriverStop(StopInput{routeID, stationID}, GetOff)
+			isBusPassed(routeID, stationID)
+			deleteGetOut(routeID, stationID, plateNo)
+			stop()
+		}
+	}
+}
+
 func isBusPassed(routeID string, stationID string) {
 	var prePlateNo, currentPlateNo string
 
