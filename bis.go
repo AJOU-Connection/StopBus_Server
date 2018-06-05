@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 )
 
@@ -481,6 +482,20 @@ func getDataFromAPI(URL string) (responseBody []byte, funcErr error) {
 	defer response.Body.Close()
 
 	responseBody, _ = ioutil.ReadAll(response.Body)
+
+	return
+}
+
+// GetStationName is a function that get stationID and stationNumber
+func GetStationName(stationNumber string, stationID string) (stationName string) {
+	data := SearchForStation(stationNumber)
+
+	for _, st := range data {
+		if (st.StationID == stationID) && (strings.TrimSpace(st.MobileNo) == stationNumber) {
+			stationName = st.StationName
+			break
+		}
+	}
 
 	return
 }
