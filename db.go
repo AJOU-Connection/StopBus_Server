@@ -82,7 +82,7 @@ func addGetOut(r Reserv) error {
 	}
 	defer mysql.Close()
 
-	_, err = mysql.Exec("INSERT INTO GetOut VALUES (?, ?, ?)", r.UUID, r.RouteID, r.StationID, r.PlateNo)
+	_, err = mysql.Exec("INSERT INTO GetOut VALUES (?, ?, ?, ?)", r.UUID, r.RouteID, r.StationID, r.PlateNo)
 	if err != nil { // error exists
 		return err
 	}
@@ -110,7 +110,7 @@ func deleteGetOut(routeID string, stationID string, plateNo string) error {
 	}
 	defer mysql.Close()
 
-	_, err = mysql.Exec("DELETE FROM GetIn WHERE routeID = ? AND stationID = ? AND plateNo = ?", routeID, stationID, plateNo)
+	_, err = mysql.Exec("DELETE FROM GetOut WHERE routeID = ? AND stationID = ? AND plateNo = ?", routeID, stationID, plateNo)
 	if err != nil { // error exists
 		return err
 	}
