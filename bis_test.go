@@ -79,26 +79,6 @@ func TestGetRouteNameFromRouteID(t *testing.T) {
 	}
 }
 
-func TestGetStationIDFromStationNumber(t *testing.T) {
-	tt := []struct {
-		districtCd    int
-		stationNumber string
-		Expected      string
-	}{
-		{2, "04237", "203000066"},
-		{2, "03126", "202000005"},
-		{2, "03124", "202000039"},
-		{2, "03117", "202000038"},
-		{2, "03105", "202000037"},
-	}
-	for _, tc := range tt {
-		resultData := GetStationIDFromStationNumber(tc.districtCd, tc.stationNumber)
-		if resultData != tc.Expected {
-			t.Logf("expected %v; got %v", tc.Expected, resultData)
-		}
-	}
-}
-
 func TestGetRouteInfo(t *testing.T) {
 	tt := []struct {
 		routeID    string

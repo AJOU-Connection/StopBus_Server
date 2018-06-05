@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strings"
 	"sync"
 )
 
@@ -318,20 +317,6 @@ func GetRouteNameFromRouteID(routeID string) string {
 func GetRouteTypeNameFromRouteID(routeID string) string {
 	data := GetRouteInfo(routeID)
 	return data.RouteTypeName
-}
-
-// GetStationIDFromStationNumber is a function that get stationID from station number.
-func GetStationIDFromStationNumber(districtCd int, stationNumber string) (stationID string) {
-	data := SearchForStation(stationNumber)
-
-	for _, st := range data {
-		if (st.DistrictCd == districtCd) && (strings.TrimSpace(st.MobileNo) == stationNumber) {
-			stationID = st.StationID
-			break
-		}
-	}
-
-	return
 }
 
 // GetStationNameFromStationID is a function that get station number from routeID and stationID.
