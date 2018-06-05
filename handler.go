@@ -570,9 +570,15 @@ func StationNameHandler(w http.ResponseWriter, r *http.Request) {
 	var stationInfo StationInfo
 	decodeJSON(r.Body, &stationInfo)
 
+	data := GetStationName(stationInfo.StationNumber, stationInfo.StationID)
+
 	jsonBody := JSONBody{
 		Header{true, 0, ""},
-		stationInfo,
+		struct {
+			StationName string `json:"stationName"`
+		}{
+			data,
+		},
 	}
 
 	jsonValue, _ := json.Marshal(jsonBody)
