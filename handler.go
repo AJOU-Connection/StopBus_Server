@@ -82,25 +82,34 @@ type StarInfo struct {
 	RouteIDList []string `json:"routeIDList"`
 }
 
+type StationInfo struct {
+	StationID     string `json:"stationID"`
+	StationNumber string `json:"stationNumber"`
+}
+
 // Handler is a function that handles the entire routing in the server.
 func Handler() http.Handler {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", GetOnly(IndexHandler))
+
 	r.HandleFunc("/driver/register", PostOnly(DriverRegisterHandler))
 	r.HandleFunc("/driver/gap", PostOnly(DriverGapHandler))
 	r.HandleFunc("/driver/stop", PostOnly(DriverStopHandler))
+
 	r.HandleFunc("/user/register", PostOnly(UserRegisterHandler))
-	r.HandleFunc("/user/search", PostOnly(SearchHandler))
-	r.HandleFunc("/user/starInfo", PostOnly(StarInfoHandler))
 	r.HandleFunc("/user/routeInfo", PostOnly(RouteInfoHandler))
+	r.HandleFunc("/user/starInfo", PostOnly(StarInfoHandler))
+	r.HandleFunc("/user/search", PostOnly(SearchHandler))
+	r.HandleFunc("/user/stationName", PostOnly(StationNameHandler))
 	r.HandleFunc("/user/busLocationList", PostOnly(BusLocationListHandler))
 	r.HandleFunc("/user/busStationList", PostOnly(BusStationListHandler))
 	r.HandleFunc("/user/busArrival", PostOnly(BusArrivalHandler))
 	r.HandleFunc("/user/reserv/getIn", PostOnly(ReservGetInHandler))
 	r.HandleFunc("/user/reserv/getOut", PostOnly(ReservGetOutHandler))
-	r.HandleFunc("/user/isgo", PostOnly(IsGoHandler))
+
 	r.HandleFunc("/user/reserv/panel", PostOnly(ReservPanelHandler))
+	r.HandleFunc("/user/isgo", PostOnly(IsGoHandler))
 
 	loggedRouter := handlers.LoggingHandler(io.Writer(GetLogFile()), r)
 	return loggedRouter
@@ -547,6 +556,23 @@ func ReservPanelHandler(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%v\n", err)
 	} else if isFirstInput {
 		go isBusPassed(reserv.RouteID, reserv.StationID)
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+func StationNameHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var stationInfo StationInfo
+	decodeJSON(r.Body, &stationInfo)
+
+	jsonBody := JSONBody{
+		Header{true, 0, ""},
+		stationInfo,
 	}
 
 	jsonValue, _ := json.Marshal(jsonBody)
