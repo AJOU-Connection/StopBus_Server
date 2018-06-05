@@ -99,7 +99,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/user/busStationList", PostOnly(BusStationListHandler))
 	r.HandleFunc("/user/busArrival", PostOnly(BusArrivalHandler))
 	r.HandleFunc("/user/reserv/getIn", PostOnly(ReservGetInHandler))
-	r.HandleFunc("/user/reserv/getOut", PostOnly(ReservGetInHandler))
+	r.HandleFunc("/user/reserv/getOut", PostOnly(ReservGetOutHandler))
 	r.HandleFunc("/user/isgo", PostOnly(IsGoHandler))
 	r.HandleFunc("/user/reserv/panel", PostOnly(ReservPanelHandler))
 
@@ -458,30 +458,54 @@ END:
 	fmt.Fprintln(w, string(jsonValue))
 }
 
-// func ReservGetOutHandler(w http.ResponseWriter, r *http.Request) {
-// 	defer r.Body.Close()
+func ReservGetOutHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 
-// 	var reserv Reserv
-// 	decodeJSON(r.Body, &reserv)
+	var reserv Reserv
+	decodeJSON(r.Body, &reserv)
 
-// 	jsonBody := struct {
-// 		Header Header `json:"header"`
-// 	}{
-// 		Header{true, 0, ""},
-// 	}
+	jsonBody := struct {
+		Header Header `json:"header"`
+	}{
+		Header{true, 0, ""},
+	}
 
-// 	ret := addGetOut(reserv)
-// 	if ret != nil {
-// 		jsonBody.Header.Result = false
-// 		jsonBody.Header.ErrorCode = 1
-// 		jsonBody.Header.ErrorContent = "Failed to reserve getIn"
-// 	}
+	busList := GetBusArrivalList(reserv.StationID)
+	if !isInBusList(reserv.RouteID, busList) {
+		jsonBody.Header.Result = false
+		jsonBody.Header.ErrorCode = 4
+		jsonBody.Header.ErrorContent = "Invalid bus routeID and stationID"
+	} else {
+		locationData := GetCurrentBusLocation(reserv.RouteID)
 
-// 	jsonValue, _ := json.Marshal(jsonBody)
+		if !isInCurrentBusList(reserv, locationData) {
+			jsonBody.Header.Result = false
+			jsonBody.Header.ErrorCode = 2
+			jsonBody.Header.ErrorContent = "There is no bus in service."
+			goto END
+		}
 
-// 	w.Header().Set("Content-Type", "application/json")
-// 	fmt.Fprintln(w, string(jsonValue))
-// }
+		go isTargetBusPassed(reserv.RouteID, reserv.StationID, reserv.PlateNo)
+
+		ret := addGetOut(reserv)
+		if ret != nil {
+			jsonBody.Header.Result = false
+			jsonBody.Header.ErrorCode = 1
+			jsonBody.Header.ErrorContent = "Failed to reserve get out"
+			goto END
+		}
+		// if isFirstInput {
+		// 	go TargetObserver(reserv.RouteID, reserv.StationID)
+		// }
+
+	}
+
+END:
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
 
 func IsGoHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
@@ -547,5 +571,23 @@ func isInBusList(routeID string, busList BusRouteList) bool {
 			break
 		}
 	}
+	return ret
+}
+
+func isInCurrentBusList(reserv Reserv, busLocationList BusLocationList) bool {
+	ret := false
+	currentStaOrder := 0
+	for _, bus := range busLocationList {
+		if bus.PlateNo == reserv.PlateNo {
+			currentStaOrder = bus.StationSeq
+			ret = true
+			break
+		}
+	}
+
+	if GetBusArrivalOnlyOne(reserv.RouteID, reserv.StationID).StaOrder < currentStaOrder {
+		ret = false
+	}
+
 	return ret
 }
