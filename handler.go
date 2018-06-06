@@ -249,19 +249,21 @@ func StarInfoHandler(w http.ResponseWriter, r *http.Request) {
 	var starInfo StarInfo
 	decodeJSON(r.Body, &starInfo)
 
+	reqLength := len(starInfo.RouteIDList)
+
 	header := Header{true, 0, ""}
-	data := []BusRouteInfoItem{}
+	data := make([]BusRouteInfoItem, reqLength, reqLength)
 
 	var wg sync.WaitGroup
-	for _, routeID := range starInfo.RouteIDList {
+	for index, routeID := range starInfo.RouteIDList {
 		wg.Add(1)
 
-		go func(routeID string, wg *sync.WaitGroup) {
+		go func(routeID string, index int, wg *sync.WaitGroup) {
 			defer wg.Done()
 			fmt.Println(routeID)
 			info := GetRouteInfo(routeID)
-			data = append(data, info)
-		}(routeID, &wg)
+			data[index] = info
+		}(routeID, index, &wg)
 	}
 	wg.Wait()
 
