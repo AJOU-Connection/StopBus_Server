@@ -153,7 +153,7 @@ type BusRouteInfoItem struct {
 	EndStationID     string   `xml:"endStationId" json:"-"`
 	EndStationName   string   `xml:"endStationName" json:"endStationName"`
 	RegionName       string   `xml:"regionName" json:"regionName"`
-	RouteID          string   `xml:"routeId" json:"-"`
+	RouteID          string   `xml:"routeId" json:"routeID"`
 	RouteName        string   `xml:"routeName" json:"routeNumber"`
 	RouteTypeName    string   `xml:"routeTypeName" json:"routeTypeName"`
 	StartMobileNo    string   `xml:"startMobileNo" json:"-"`
