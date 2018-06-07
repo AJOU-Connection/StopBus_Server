@@ -278,7 +278,6 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	// ret := FillStationDirect(data.MsgBody.BusStationList)
 	ret := data.MsgBody.BusStationList
 
 	return ret
@@ -422,23 +421,6 @@ func FillRouteNumber(stationID string, busArrivalList BusArrivalList) BusArrival
 	return busArrivalList
 }
 
-// FillStationDirect is a function that fills the station directs of BusStationList
-func FillStationDirect(busStationList BusStationList) BusStationList {
-	var wg sync.WaitGroup
-
-	length := len(busStationList)
-	for i := 0; i < length; i++ {
-		wg.Add(1)
-		go func(j int, wg *sync.WaitGroup) {
-			busStationList[j].StationDirect = GetStationDirect(busStationList[j].StationID)
-			wg.Done()
-		}(i, &wg)
-	}
-
-	wg.Wait()
-	return busStationList
-}
-
 // GetStationDirect is a function that get stationDirect from a stationID
 func GetStationDirect(stationID string) (stationDirect string) {
 	if direct := getStaDirect(stationID); direct != "" {
@@ -452,12 +434,37 @@ func GetStationDirect(stationID string) (stationDirect string) {
 		return ""
 	}
 
-	busRouteStationList := GetRouteStationList(busRouteList[0].RouteID)
-	length := len(busRouteStationList)
-	if busRouteList[0].StaOrder == length {
-		stationDirect = "종점"
-	} else {
-		stationDirect = busRouteStationList[busRouteList[0].StaOrder].StationName
+	nextStationNameList := make([]string, len(busRouteList), len(busRouteList))
+
+	var wg sync.WaitGroup
+	for i := 0; i < len(busRouteList); i++ {
+		wg.Add(1)
+		go func(index int, wg *sync.WaitGroup) {
+			busRouteStationList := GetRouteStationList(busRouteList[index].RouteID)
+			length := len(busRouteStationList)
+			currentStaOrder := busRouteList[index].StaOrder
+
+			if currentStaOrder == length {
+				nextStationNameList[index] = "종점"
+			} else {
+				nextStationNameList[index] = busRouteStationList[currentStaOrder].StationName
+			}
+
+			wg.Done()
+		}(i, &wg)
+	}
+	wg.Wait()
+
+	directMap := map[string]int{}
+	for _, str := range nextStationNameList {
+		directMap[str]++
+	}
+
+	maxCnt := -1
+	for key, value := range directMap {
+		if maxCnt < value {
+			stationDirect = key
+		}
 	}
 
 	err := addStaDirect(stationID, stationDirect)
