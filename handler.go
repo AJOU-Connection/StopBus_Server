@@ -102,6 +102,7 @@ func Handler() http.Handler {
 	r.HandleFunc("/user/starInfo", PostOnly(StarInfoHandler))
 	r.HandleFunc("/user/search", PostOnly(SearchHandler))
 	r.HandleFunc("/user/stationName", PostOnly(StationNameHandler))
+	r.HandleFunc("/user/stationDirect", PostOnly(StationDirectHandler))
 	r.HandleFunc("/user/busLocationList", PostOnly(BusLocationListHandler))
 	r.HandleFunc("/user/busStationList", PostOnly(BusStationListHandler))
 	r.HandleFunc("/user/busArrival", PostOnly(BusArrivalHandler))
@@ -567,6 +568,29 @@ func ReservPanelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func StationNameHandler(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	var stationIDInput OnlyStationIDInput
+	decodeJSON(r.Body, &stationIDInput)
+
+	data := GetStationDirect(stationIDInput.StationID)
+
+	jsonBody := JSONBody{
+		Header{true, 0, ""},
+		struct {
+			StationDirect string `json:"stationDirect"`
+		}{
+			data,
+		},
+	}
+
+	jsonValue, _ := json.Marshal(jsonBody)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintln(w, string(jsonValue))
+}
+
+func StationDirectHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var stationInfo StationInfo
