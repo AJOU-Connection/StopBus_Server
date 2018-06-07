@@ -64,8 +64,8 @@ type BusStation struct {
 	RegionName    string   `xml:"regionName" json:"-"`
 	StationID     string   `xml:"stationId" json:"stationID"`
 	StationName   string   `xml:"stationName" json:"stationName"`
-	X             float32  `xml:"x" json:"-"`
-	Y             float32  `xml:"y" json:"-"`
+	Y             float32  `xml:"y" json:"longitude"`
+	X             float32  `xml:"x" json:"latitude"`
 	StationDirect string   `xml:"-" json:"stationDirect"`
 }
 
