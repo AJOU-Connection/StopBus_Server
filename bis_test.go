@@ -153,18 +153,18 @@ func TestGetBusArrivalList(t *testing.T) {
 	}
 }
 
-func TestGetStationDirect(t *testing.T) {
-	tt := []struct {
-		stationID string
-	}{
-		{"202000004"},
-		{"203000067"},
-	}
+// func TestGetStationDirect(t *testing.T) {
+// 	tt := []struct {
+// 		stationID string
+// 	}{
+// 		{"202000004"},
+// 		{"203000067"},
+// 	}
 
-	for _, tc := range tt {
-		GetStationDirect(tc.stationID)
-	}
-}
+// 	for _, tc := range tt {
+// 		GetStationDirect(tc.stationID)
+// 	}
+// }
 
 func TestGetDataFromAPI(t *testing.T) {
 	tt := []struct {
