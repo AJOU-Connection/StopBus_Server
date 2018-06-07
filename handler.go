@@ -570,15 +570,15 @@ func ReservPanelHandler(w http.ResponseWriter, r *http.Request) {
 func StationNameHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	var stationIDInput OnlyStationIDInput
-	decodeJSON(r.Body, &stationIDInput)
+	var stationInfo StationInfo
+	decodeJSON(r.Body, &stationInfo)
 
-	data := GetStationDirect(stationIDInput.StationID)
+	data := GetStationName(stationInfo.StationNumber, stationInfo.StationID)
 
 	jsonBody := JSONBody{
 		Header{true, 0, ""},
 		struct {
-			StationDirect string `json:"stationDirect"`
+			StationName string `json:"stationName"`
 		}{
 			data,
 		},
@@ -593,15 +593,15 @@ func StationNameHandler(w http.ResponseWriter, r *http.Request) {
 func StationDirectHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	var stationInfo StationInfo
-	decodeJSON(r.Body, &stationInfo)
+	var stationIDInput OnlyStationIDInput
+	decodeJSON(r.Body, &stationIDInput)
 
-	data := GetStationName(stationInfo.StationNumber, stationInfo.StationID)
+	data := GetStationDirect(stationIDInput.StationID)
 
 	jsonBody := JSONBody{
 		Header{true, 0, ""},
 		struct {
-			StationName string `json:"stationName"`
+			StationDirect string `json:"stationDirect"`
 		}{
 			data,
 		},
