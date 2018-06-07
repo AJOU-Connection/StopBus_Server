@@ -278,6 +278,23 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
+	if len(data.MsgBody.BusStationList) > 50 {
+		return data.MsgBody.BusStationList
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < len(data.MsgBody.BusStationList); i++ {
+		if data.MsgBody.BusStationList[i].MobileNo == " 00000" {
+			continue
+		} else {
+			wg.Add(1)
+			go func(index int, wg *sync.WaitGroup) {
+				data.MsgBody.BusStationList[index].StationDirect = GetStationDirect(data.MsgBody.BusStationList[index].StationID)
+				wg.Done()
+			}(i, &wg)
+		}
+	}
+	wg.Wait()
 	ret := data.MsgBody.BusStationList
 
 	return ret
@@ -444,7 +461,7 @@ func GetStationDirect(stationID string) (stationDirect string) {
 			length := len(busRouteStationList)
 			currentStaOrder := busRouteList[index].StaOrder
 
-			if currentStaOrder == length {
+			if currentStaOrder >= length {
 				nextStationNameList[index] = "종점"
 			} else {
 				nextStationNameList[index] = busRouteStationList[currentStaOrder].StationName
