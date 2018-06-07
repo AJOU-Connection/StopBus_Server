@@ -1,19 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 	"testing"
 )
 
 func TestGetGoingBusList(t *testing.T) {
-	retList := GetGoingBusList("228003542", "228000875")
-
-	for _, route := range retList {
-		fmt.Println(route)
-	}
-
+	GetGoingBusList("228003542", "228000875")
 }
 
 func TestSearchForStation(t *testing.T) {
@@ -28,12 +22,7 @@ func TestSearchForStation(t *testing.T) {
 		// {"병원", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		// SearchForStation(tc.keyword)
-		resultData := SearchForStation(tc.keyword)
-		// fmt.Println(len(resultData))
-		for _, rd := range resultData {
-			fmt.Println(rd.StationDirect)
-		}
+		SearchForStation(tc.keyword)
 	}
 }
 
@@ -46,8 +35,7 @@ func TestSearchForRoute(t *testing.T) {
 		{"3007", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := SearchForRoute(tc.keyword)
-		fmt.Println(resultData)
+		SearchForRoute(tc.keyword)
 	}
 }
 
@@ -60,8 +48,7 @@ func TestGetRouteStationList(t *testing.T) {
 		{"234000026", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := GetRouteStationList(tc.routeID)
-		fmt.Println(resultData)
+		GetRouteStationList(tc.routeID)
 	}
 }
 
@@ -74,8 +61,7 @@ func TestGetRouteNameFromRouteID(t *testing.T) {
 		{"241005870", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := GetRouteNameFromRouteID(tc.routeID)
-		fmt.Println(resultData)
+		GetRouteNameFromRouteID(tc.routeID)
 	}
 }
 
@@ -88,8 +74,7 @@ func TestGetRouteInfo(t *testing.T) {
 		{"241005870", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := GetRouteInfo(tc.routeID)
-		fmt.Println(resultData)
+		GetRouteInfo(tc.routeID)
 	}
 }
 
@@ -102,8 +87,7 @@ func TestGetCurrentBusLocation(t *testing.T) {
 		{"234000026", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := GetCurrentBusLocation(tc.routeID)
-		fmt.Println(resultData)
+		GetCurrentBusLocation(tc.routeID)
 	}
 }
 
@@ -139,8 +123,7 @@ func TestGetBusArrivalOnlyOne(t *testing.T) {
 		{"200000320", "203000066", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := GetBusArrivalOnlyOne(tc.routeID, tc.stationID)
-		fmt.Println(resultData)
+		GetBusArrivalOnlyOne(tc.routeID, tc.stationID)
 	}
 }
 
@@ -153,8 +136,7 @@ func TestGetBusArrivalTime(t *testing.T) {
 		{"115507730", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := GetBusArrivalTime(tc.stationID)
-		fmt.Println(resultData)
+		GetBusArrivalTime(tc.stationID)
 	}
 }
 
@@ -167,8 +149,7 @@ func TestGetBusArrivalList(t *testing.T) {
 		{"203000066", http.StatusOK, 0},
 	}
 	for _, tc := range tt {
-		resultData := GetBusArrivalList(tc.stationID)
-		fmt.Println(resultData)
+		GetBusArrivalList(tc.stationID)
 	}
 }
 
@@ -181,8 +162,7 @@ func TestGetStationDirect(t *testing.T) {
 	}
 
 	for _, tc := range tt {
-		ret := GetStationDirect(tc.stationID)
-		fmt.Println(tc.stationID,":",ret)
+		GetStationDirect(tc.stationID)
 	}
 }
 
@@ -196,7 +176,7 @@ func TestGetDataFromAPI(t *testing.T) {
 		{"http://stop-bus.tt", "no such host"},
 	}
 	for _, tc := range tt {
-		responseBody, err := getDataFromAPI(tc.URL)
+		_, err := getDataFromAPI(tc.URL)
 
 		if err != nil {
 			if !strings.Contains(err.Error(), tc.expectedErrorText) {
@@ -204,7 +184,5 @@ func TestGetDataFromAPI(t *testing.T) {
 			}
 			continue
 		}
-
-		fmt.Println(string(responseBody))
 	}
 }

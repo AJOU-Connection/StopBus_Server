@@ -87,12 +87,10 @@ func TestDriverRegisterHandler(t *testing.T) {
 		t.Fatalf("expected status OK; got %v", res.Status)
 	}
 
-	resBody, err := ioutil.ReadAll(res.Body)
+	_, err = ioutil.ReadAll(res.Body)
 	if err != nil {
 		t.Fatalf("could not read response: %v", err)
 	}
-
-	fmt.Println(string(resBody))
 }
 
 func TestDriverGapHandler(t *testing.T) {
@@ -131,12 +129,10 @@ func TestDriverGapHandler(t *testing.T) {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
-		resBody, err := ioutil.ReadAll(res.Body)
+		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("could not read response: %v", err)
 		}
-
-		fmt.Println(string(resBody))
 	}
 }
 
@@ -167,12 +163,10 @@ func TestUserRegisterHandler(t *testing.T) {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
-		resBody, err := ioutil.ReadAll(res.Body)
+		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("could not read response: %v", err)
 		}
-
-		fmt.Println(string(resBody))
 	}
 }
 
@@ -214,12 +208,10 @@ func TestSearchHandler(t *testing.T) {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
-		resBody, err := ioutil.ReadAll(res.Body)
+		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("could not read response: %v", err)
 		}
-
-		fmt.Println(string(resBody))
 	}
 }
 
@@ -261,12 +253,10 @@ func TestRouteInfoHandler(t *testing.T) {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
-		resBody, err := ioutil.ReadAll(res.Body)
+		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("could not read response: %v", err)
 		}
-
-		fmt.Println(string(resBody))
 	}
 }
 
@@ -308,12 +298,10 @@ func TestBusLocationListHandler(t *testing.T) {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
-		resBody, err := ioutil.ReadAll(res.Body)
+		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("could not read response: %v", err)
 		}
-
-		fmt.Println(string(resBody))
 	}
 }
 
@@ -355,18 +343,16 @@ func TestBusStationListHandler(t *testing.T) {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
-		resBody, err := ioutil.ReadAll(res.Body)
+		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("could not read response: %v", err)
 		}
-
-		fmt.Println(string(resBody))
 	}
 }
 
 func TestBusArrivalHandler(t *testing.T) {
 	tt := []struct {
-		stationID  string
+		stationID      string
 		httpStatusCode int
 	}{
 		{"203000066", http.StatusOK},
@@ -398,11 +384,9 @@ func TestBusArrivalHandler(t *testing.T) {
 			t.Fatalf("expected status OK; got %v", res.Status)
 		}
 
-		resBody, err := ioutil.ReadAll(res.Body)
+		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
 			t.Fatalf("could not read response: %v", err)
 		}
-
-		fmt.Println(string(resBody))
 	}
 }
