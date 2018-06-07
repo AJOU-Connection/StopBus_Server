@@ -15,7 +15,7 @@ const (
 )
 
 func addUserToken(user User) error {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return err
 	}
@@ -29,7 +29,7 @@ func addUserToken(user User) error {
 }
 
 func addDriverStop(stopInput StopInput, getType GetType) (bool, error) {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return false, err
 	}
@@ -62,7 +62,7 @@ func addDriverStop(stopInput StopInput, getType GetType) (bool, error) {
 }
 
 func addGetIn(r Reserv) error {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return err
 	}
@@ -76,7 +76,7 @@ func addGetIn(r Reserv) error {
 }
 
 func addGetOut(r Reserv) error {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return err
 	}
@@ -90,7 +90,7 @@ func addGetOut(r Reserv) error {
 }
 
 func deleteGetIn(routeID string, stationID string) error {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return err
 	}
@@ -104,7 +104,7 @@ func deleteGetIn(routeID string, stationID string) error {
 }
 
 func deleteGetOut(routeID string, stationID string, plateNo string) error {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return err
 	}
@@ -118,7 +118,7 @@ func deleteGetOut(routeID string, stationID string, plateNo string) error {
 }
 
 func deleteDriverStop(routeID string, stationID string) error {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return err
 	}
@@ -132,7 +132,7 @@ func deleteDriverStop(routeID string, stationID string) error {
 }
 
 func getTokenFromUUID(UUID string) (string, error) {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return "", err
 	}
@@ -148,7 +148,7 @@ func getTokenFromUUID(UUID string) (string, error) {
 }
 
 func addStaDirect(stationID string, direct string) error {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return err
 	}
@@ -162,7 +162,7 @@ func addStaDirect(stationID string, direct string) error {
 }
 
 func getStaDirect(stationID string) string {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 
 	mysql.SetConnMaxLifetime(time.Second * 5)
 
@@ -186,7 +186,7 @@ func getStaDirect(stationID string) string {
 }
 
 func getGetInUserTokens(routeID string, stationID string) ([]string, error) {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return nil, err
 	}
@@ -212,7 +212,7 @@ func getGetInUserTokens(routeID string, stationID string) ([]string, error) {
 }
 
 func getGetOutUserTokens(routeID string, stationID string, plateNo string) ([]string, error) {
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return nil, err
 	}
@@ -240,7 +240,7 @@ func getGetOutUserTokens(routeID string, stationID string, plateNo string) ([]st
 func getGetCount(routeID string, stationID string) (GetInfo, error) {
 	var getInfo GetInfo
 
-	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IP_addr+":"+config.Database.Port+")/"+config.Database.DBname)
+	mysql, err := sql.Open("mysql", config.Database.User+":"+config.Database.Passwd+"@tcp("+config.Database.IPAddr+":"+config.Database.Port+")/"+config.Database.DBname)
 	if err != nil { // error exists
 		return getInfo, err
 	}
