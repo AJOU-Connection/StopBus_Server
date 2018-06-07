@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
-	"log"
 	"os"
 )
 
@@ -16,11 +14,11 @@ type configuration struct {
 }
 
 type Database struct {
-	User    string `json:"user"`
-	Passwd  string `json:"passwd"`
-	IP_addr string `json:"ip_addr"`
-	Port    string `json:"port"`
-	DBname  string `json:"dbname"`
+	User   string `json:"user"`
+	Passwd string `json:"passwd"`
+	IPAddr string `json:"ip_addr"`
+	Port   string `json:"port"`
+	DBname string `json:"dbname"`
 }
 
 // config is a variable that stores configuration information.
@@ -28,25 +26,42 @@ var config configuration
 
 // init is an initialization function.
 func init() {
-	err := setUpConfig()
-	if err != nil {
-		log.Fatalf("[ERROR] %v\n", err)
-	}
+	setUpConfig()
+	setUpUsingEnv()
 }
 
-func setUpConfig() error {
+func setUpConfig() {
 	if _, err := os.Stat("./configs"); err != nil {
-		return errors.New("directory not exists: ./configs")
+		return
 	}
 
 	file, err := ioutil.ReadFile("./configs/config.json") // read config.json
 	if err != nil {
-		return errors.New("config file not exists: ./configs/config.json")
+		return
 	}
 
 	err = json.Unmarshal(file, &config) // store loaded json at config variable
 	if err != nil {
-		return errors.New("invalid JSON file: ./configs/config.json")
+		return
 	}
-	return nil
+}
+
+func setUpUsingEnv() {
+	if config.ServiceKey == "" {
+		config.ServiceKey = os.Getenv("serviceKey")
+	}
+
+	if config.ServerKey == "" {
+		config.ServerKey = os.Getenv("serverKey")
+	}
+
+	if config.Database == (Database{}) {
+		config.Database = Database{
+			os.Getenv("databaseUser"),
+			os.Getenv("databasePasswd"),
+			os.Getenv("databaseIpAddr"),
+			os.Getenv("databasePort"),
+			os.Getenv("databaseDbname"),
+		}
+	}
 }
