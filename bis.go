@@ -319,6 +319,10 @@ func SearchForRoute(keyword string) BusRouteList {
 	var data RouteResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
+	if strings.Contains(fakeBus.GetBusRoute().RouteName, keyword) {
+		data.MsgBody.BusRouteList = append(data.MsgBody.BusRouteList, fakeBus.GetBusRoute())
+	}
+
 	return data.MsgBody.BusRouteList
 }
 
@@ -330,6 +334,10 @@ func GetRouteStationList(routeID string) BusRouteStationList {
 
 	var data RouteStationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
+
+	if strings.Contains(fakeBus.GetBusRoute().RouteID, routeID) {
+		data.MsgBody.BusRouteStationList = fakeBus.GetBusRouteStationList()
+	}
 
 	return data.MsgBody.BusRouteStationList
 }
@@ -366,6 +374,10 @@ func GetRouteInfo(routeID string) BusRouteInfoItem {
 	var data RouteInfoResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
+	if strings.Contains(fakeBus.GetBusRoute().RouteID, routeID) {
+		data.MsgBody.BusRouteInfoItem = fakeBus.GetBusRouteInfo()
+	}
+
 	return data.MsgBody.BusRouteInfoItem
 }
 
@@ -377,6 +389,10 @@ func GetCurrentBusLocation(routeID string) BusLocationList {
 
 	var data LocationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
+
+	if strings.Contains(fakeBus.GetBusRoute().RouteID, routeID) {
+		data.MsgBody.BusLocationList = fakeBus.GetCurrentBusLocation()
+	}
 
 	return data.MsgBody.BusLocationList
 }
@@ -403,6 +419,10 @@ func GetBusArrivalTime(stationID string) BusArrivalList {
 	_ = xml.Unmarshal(responseBody, &data)
 
 	data.MsgBody.BusArrivalList = FillRouteNumber(stationID, data.MsgBody.BusArrivalList)
+
+	if fakeBus.IsInBusList(stationID) {
+		data.MsgBody.BusArrivalList = append(data.MsgBody.BusArrivalList, fakeBus.GetBusArrival(stationID))
+	}
 
 	return data.MsgBody.BusArrivalList
 }
