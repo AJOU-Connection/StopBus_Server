@@ -278,12 +278,14 @@ func SearchForStation(keyword string) BusStationList {
 	var data StationResponseBody
 	_ = xml.Unmarshal(responseBody, &data)
 
-	if len(data.MsgBody.BusStationList) > 50 {
+	listLength := len(data.MsgBody.BusStationList)
+
+	if listLength > 50 {
 		return data.MsgBody.BusStationList
 	}
 
 	var wg sync.WaitGroup
-	for i := 0; i < len(data.MsgBody.BusStationList); i++ {
+	for i := 0; i < listLength; i++ {
 		if data.MsgBody.BusStationList[i].MobileNo == " 00000" {
 			continue
 		} else {
@@ -295,7 +297,15 @@ func SearchForStation(keyword string) BusStationList {
 		}
 	}
 	wg.Wait()
-	ret := data.MsgBody.BusStationList
+
+	ret := data.MsgBody.BusStationList[:0]
+
+	for _, bs := range data.MsgBody.BusStationList {
+		if strings.TrimSpace(bs.MobileNo) == "00000" || bs.DistrictCd != 2 {
+			continue
+		}
+		ret = append(ret, bs)
+	}
 
 	return ret
 }
