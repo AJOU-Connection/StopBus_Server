@@ -261,7 +261,6 @@ func StarInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 		go func(routeID string, index int, wg *sync.WaitGroup) {
 			defer wg.Done()
-			fmt.Println(routeID)
 			info := GetRouteInfo(routeID)
 			data[index] = info
 		}(routeID, index, &wg)
@@ -495,8 +494,6 @@ func ReservGetOutHandler(w http.ResponseWriter, r *http.Request) {
 			goto END
 		}
 
-		go isTargetBusPassed(reserv.RouteID, reserv.StationID, reserv.PlateNo)
-
 		ret := addGetOut(reserv)
 		if ret != nil {
 			jsonBody.Header.Result = false
@@ -504,10 +501,8 @@ func ReservGetOutHandler(w http.ResponseWriter, r *http.Request) {
 			jsonBody.Header.ErrorContent = "Failed to reserve get out"
 			goto END
 		}
-		// if isFirstInput {
-		// 	go TargetObserver(reserv.RouteID, reserv.StationID)
-		// }
 
+		go isTargetBusPassed(reserv.RouteID, reserv.StationID, reserv.PlateNo)
 	}
 
 END:
@@ -573,14 +568,14 @@ func StationNameHandler(w http.ResponseWriter, r *http.Request) {
 	var stationInfo StationInfo
 	decodeJSON(r.Body, &stationInfo)
 
-	data := GetStationName(stationInfo.StationNumber, stationInfo.StationID)
-
 	jsonBody := JSONBody{
 		Header{true, 0, ""},
 		struct {
-			StationName string `json:"stationName"`
+			StationName   string `json:"stationName"`
+			StationDirect string `json:"stationDirect"`
 		}{
-			data,
+			GetStationName(stationInfo.StationNumber, stationInfo.StationID),
+			GetStationDirect(stationInfo.StationID),
 		},
 	}
 
@@ -633,8 +628,12 @@ func isInBusList(routeID string, busList BusRouteList) bool {
 func isInCurrentBusList(reserv Reserv, busLocationList BusLocationList) bool {
 	ret := false
 	currentStaOrder := 0
+
+	fmt.Println("reserv", reserv)
+	fmt.Println("busLocationList", busLocationList)
+
 	for _, bus := range busLocationList {
-		if bus.PlateNo == reserv.PlateNo {
+		if bus.PlateNo[len(bus.PlateNo)-4:] == reserv.PlateNo {
 			currentStaOrder = bus.StationSeq
 			ret = true
 			break
