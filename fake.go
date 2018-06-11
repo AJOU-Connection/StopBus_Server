@@ -34,14 +34,14 @@ func (fb *FakeBus) Init() {
 		BusRoute{xml.Name{}, 2, "수원", "201320974", "2018-1", "테스트용시내버스", 0},
 		BusRouteInfoItem{xml.Name{}, 2, "00:00", "00:00", "03129", "202000004", "아주대학교입구", "수원", "201320974", "2018-1", "테스트용시내버스", "04238", "203000067", "아주대학교입구", "00:00", "00:00"},
 		BusRouteStationList{
-			BusRouteStation{xml.Name{}, "", 0, "04238", "", "203000067", "아주대학교입구", 0, 0, 1, ""},
-			BusRouteStation{xml.Name{}, "", 0, "04237", "", "203000066", "아주대.아주대학교병원", 0, 0, 2, ""},
-			BusRouteStation{xml.Name{}, "", 0, "03124", "", "202000039", "창현고교.아주대학교.유신고교", 0, 0, 3, ""},
-			BusRouteStation{xml.Name{}, "", 0, "03117", "", "202000038", "효성초등학교", 0, 0, 4, ""},
-			BusRouteStation{xml.Name{}, "", 0, "03119", "", "202000032", "효성초등학교", 0, 0, 5, ""},
-			BusRouteStation{xml.Name{}, "", 0, "03125", "", "202000061", "창현고교.아주대학교.유신고교", 0, 0, 6, ""},
-			BusRouteStation{xml.Name{}, "", 0, "03126", "", "202000005", "아주대.아주대학교병원", 0, 0, 7, ""},
-			BusRouteStation{xml.Name{}, "", 0, "03129", "", "202000004", "아주대학교입구", 0, 0, 8, ""},
+			BusRouteStation{xml.Name{}, "", 0, "03119", "", "202000032", "효성초등학교", 0, 0, 1, ""},
+			BusRouteStation{xml.Name{}, "", 0, "03125", "", "202000061", "창현고교.아주대학교.유신고교", 0, 0, 2, ""},
+			BusRouteStation{xml.Name{}, "", 0, "03126", "", "202000005", "아주대.아주대학교병원", 0, 0, 3, ""},
+			BusRouteStation{xml.Name{}, "", 0, "03129", "", "202000004", "아주대학교입구", 0, 0, 4, ""},
+			BusRouteStation{xml.Name{}, "", 0, "04238", "", "203000067", "아주대학교입구", 0, 0, 5, ""},
+			BusRouteStation{xml.Name{}, "", 0, "04237", "", "203000066", "아주대.아주대학교병원", 0, 0, 6, ""},
+			BusRouteStation{xml.Name{}, "", 0, "03124", "", "202000039", "창현고교.아주대학교.유신고교", 0, 0, 7, ""},
+			BusRouteStation{xml.Name{}, "", 0, "03117", "", "202000038", "효성초등학교", 0, 0, 8, ""},
 		},
 	}
 }
@@ -53,6 +53,9 @@ func (fb *FakeBus) Run() {
 		for i := 0; i < len(fb.BusInstances); i++ {
 			fb.BusInstances[i].currentStationNo = (fb.BusInstances[i].currentStationNo + 1) % 8
 		}
+
+		fmt.Println("PlateNo1:", fb.BusInstances[0].plateNo, "/ currentLocation:", fb.busRouteStationList[fb.BusInstances[0].currentStationNo].StationName)
+		fmt.Println("PlateNo2:", fb.BusInstances[1].plateNo, "/ currentLocation:", fb.busRouteStationList[fb.BusInstances[1].currentStationNo].StationName)
 
 		time.Sleep(1 * time.Minute)
 	}
@@ -78,7 +81,7 @@ func (fb *FakeBus) GetCurrentBusLocation() BusLocationList {
 			0,
 			-1,
 			fb.BusInstances[i].plateNo,
-			-1,
+			25,
 			fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationID,
 			fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationSeq,
 		})
@@ -107,8 +110,8 @@ func (fb *FakeBus) GetBusArrival(stationID string) BusArrival {
 		"",
 		0,
 		0,
-		-1,
-		-1,
+		23,
+		17,
 		fb.busRoute.RouteID,
 		fb.busRoute.RouteName,
 		fb.busRoute.RouteTypeName,
@@ -125,7 +128,6 @@ func (fb *FakeBus) GetBusArrival(stationID string) BusArrival {
 	LocationNos := []int{}
 
 	for i := 0; i < len(fb.BusInstances); i++ {
-		fmt.Println("current:", fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationSeq)
 		LocationNos = append(LocationNos, busArrival.StaOrder-fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationSeq)
 		if LocationNos[i] < 0 {
 			LocationNos[i] = len(fb.busRouteStationList) - LocationNos[i]
@@ -134,9 +136,7 @@ func (fb *FakeBus) GetBusArrival(stationID string) BusArrival {
 			LocationNos[i] = 1
 		}
 
-		fmt.Println("result:", LocationNos[i])
 	}
-	fmt.Println("")
 
 	firstIndex := 0
 

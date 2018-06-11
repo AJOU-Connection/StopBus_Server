@@ -435,7 +435,6 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		isFirstInput, err := addDriverStop(StopInput{reserv.RouteID, reserv.StationID}, GetIn)
 		if err != nil {
-			fmt.Println(err)
 			jsonBody.Header.Result = false
 			jsonBody.Header.ErrorCode = 3
 			jsonBody.Header.ErrorContent = "Failed to reserve get in"
@@ -444,7 +443,7 @@ func ReservGetInHandler(w http.ResponseWriter, r *http.Request) {
 			go isBusPassed(reserv.RouteID, reserv.StationID)
 		}
 
-		if data.PredictTime1 < 2 {
+		if data.PredictTime1 <= 2 {
 			go GetInAlertUsingUUID(reserv)
 		} else {
 			ret := addGetIn(reserv)
@@ -482,7 +481,7 @@ func ReservGetOutHandler(w http.ResponseWriter, r *http.Request) {
 	busList := GetBusArrivalList(reserv.StationID)
 	if !isInBusList(reserv.RouteID, busList) {
 		jsonBody.Header.Result = false
-		jsonBody.Header.ErrorCode = 4
+		jsonBody.Header.ErrorCode = 3
 		jsonBody.Header.ErrorContent = "Invalid bus routeID and stationID"
 	} else {
 		locationData := GetCurrentBusLocation(reserv.RouteID)
@@ -629,9 +628,6 @@ func isInCurrentBusList(reserv Reserv, busLocationList BusLocationList) bool {
 	ret := false
 	currentStaOrder := 0
 
-	fmt.Println("reserv", reserv)
-	fmt.Println("busLocationList", busLocationList)
-
 	for _, bus := range busLocationList {
 		if bus.PlateNo[len(bus.PlateNo)-4:] == reserv.PlateNo {
 			currentStaOrder = bus.StationSeq
@@ -640,7 +636,7 @@ func isInCurrentBusList(reserv Reserv, busLocationList BusLocationList) bool {
 		}
 	}
 
-	if GetBusArrivalOnlyOne(reserv.RouteID, reserv.StationID).StaOrder < currentStaOrder {
+	if (reserv.RouteID != "201320974") && (GetBusArrivalOnlyOne(reserv.RouteID, reserv.StationID).StaOrder < currentStaOrder) {
 		ret = false
 	}
 
