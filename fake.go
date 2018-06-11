@@ -128,14 +128,16 @@ func (fb *FakeBus) GetBusArrival(stationID string) BusArrival {
 	LocationNos := []int{}
 
 	for i := 0; i < len(fb.BusInstances); i++ {
-		LocationNos = append(LocationNos, busArrival.StaOrder-fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationSeq)
-		if LocationNos[i] < 0 {
-			LocationNos[i] = len(fb.busRouteStationList) - LocationNos[i]
-			LocationNos[i]--
-		} else if LocationNos[i] == 0 {
-			LocationNos[i] = 1
+		var tempNo int
+		if fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationSeq > busArrival.StaOrder {
+			tempNo = len(fb.busRouteStationList) - fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationSeq + busArrival.StaOrder
+		} else {
+			tempNo = busArrival.StaOrder - fb.busRouteStationList[fb.BusInstances[i].currentStationNo].StationSeq
 		}
-
+		if tempNo == 0 {
+			tempNo = len(fb.busRouteStationList)
+		}
+		LocationNos = append(LocationNos, tempNo)
 	}
 
 	firstIndex := 0
