@@ -11,7 +11,7 @@ import (
 func GetInAlert(routeID string, stationID string) {
 	tokens, err := getGetInUserTokens(routeID, stationID)
 	if err != nil {
-		log.Fatalf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 
 	title := "승차알림"
@@ -22,7 +22,7 @@ func GetInAlert(routeID string, stationID string) {
 func GetOutAlert(routeID string, stationID string, plateNo string) {
 	tokens, err := getGetOutUserTokens(routeID, stationID, plateNo)
 	if err != nil {
-		log.Fatalf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 
 	title := "하차알림"
@@ -36,7 +36,7 @@ func GetInAlertUsingUUID(reserv Reserv) {
 
 	token, err := getTokenFromUUID(reserv.UUID)
 	if err != nil {
-		log.Fatalf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 
 	fcmAlert(reserv.RouteID, reserv.StationID, title, message, []string{token})
@@ -68,6 +68,6 @@ func fcmAlert(routeID string, stationID string, title string, message string, to
 	_, err := c.Send()
 
 	if err != nil {
-		log.Fatalf("%v\n", err)
+		log.Printf("%v\n", err)
 	}
 }
